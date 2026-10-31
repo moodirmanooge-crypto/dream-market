@@ -8,8 +8,8 @@ export const defaultSettings = {
     title: 'Where Financial Minds Meet.',
     goldWord: 'Minds',
     subtitle: 'Business. Finance. Technology. People.',
-    rotatorPrefix: 'Conversations about',
-    rotatorWords: ['Finance', 'Crypto', 'Markets', 'Startups', 'Technology', 'Leadership'],
+    rotatorPrefix: 'Conversations that',
+    rotatorWords: ['Shape Tomorrow.', 'Connect Ideas.', 'Connect People.', 'Create Opportunities.'],
     primaryButton: 'WATCH EPISODES',
     secondaryButton: 'Our Story',
     platformsLabel: 'Available on',
@@ -18,7 +18,7 @@ export const defaultSettings = {
     slideBadge: 'sabahvisions',
   },
   ticker: {
-    topics: ['BUSINESS', 'FINANCE', 'CRYPTO', 'TECHNOLOGY', 'ENTREPRENEURSHIP', 'MARKETS', 'LEADERSHIP', 'INVESTING'],
+    topics: ['BUSINESS', 'FINANCE', 'TECHNOLOGY', 'PEOPLE', 'ENTREPRENEURSHIP', 'MARKETS', 'LEADERSHIP', 'INNOVATION'],
     quotes: [
       { label: 'DMP', value: '+24 EPS' }, { label: 'FINANCE', value: '▲ 12.4%' }, { label: 'CRYPTO', value: '▲ 8.1%' },
       { label: 'TECH', value: '▲ 5.7%' }, { label: 'STARTUPS', value: '▲ 19.2%' }, { label: 'GUESTS', value: '+60' },
@@ -33,9 +33,9 @@ export const defaultSettings = {
   sections: {
     featured: { kicker: 'Featured Episode', title: 'The conversation', gold: 'everyone is talking about.' },
     episodes: { kicker: 'Latest Episodes', title: 'Fresh talks,', gold: 'every single week.' },
-    shows: { kicker: 'Our Shows', title: 'Programs built for', gold: 'ambitious minds.', text: "Each show focuses on a different side of the new economy — from global markets to the founders building Africa's future." },
+    shows: { kicker: 'Our Shows', title: 'Programs built for', gold: 'ambitious minds.', text: 'Business, finance, markets and technology — each show explores a different side of the ideas and people shaping tomorrow.' },
     guests: { kicker: 'Meet Our Guests', title: 'CEOs, founders &', gold: 'investors.', text: 'The people shaping business and finance — in their own words.' },
-    about: { kicker: 'About Dream Market', title: 'More than a podcast —', gold: 'a media company.' },
+    about: { kicker: 'Our Story', title: 'More than a podcast —', gold: 'a global media platform.', text: 'Discover the people, ideas and businesses shaping the future of finance, technology and entrepreneurship.' },
     partners: { kicker: 'Partners & Sponsors', title: 'Trusted by', gold: 'brands that build.' },
     contact: { kicker: 'Contact', title: "Let's build something", gold: 'together.', text: 'Be a guest, sponsor an episode or partner with Dream Market.' },
   },
@@ -79,11 +79,11 @@ export const seed = {
     { title: 'From Side Hustle to Startup', guest: 'Yusuf Ali', role: 'Serial Entrepreneur', category: 'Entrepreneurship', duration: '49 min', number: 19, image: '', video: '', youtube: '', description: 'The real story behind three companies and two failures.' },
   ],
   shows: [
-    { title: 'Forex Room', icon: '💹', image: '', description: 'Currency markets, trading psychology and risk management — live analysis with real traders.' },
-    { title: 'Market Talk', icon: '📈', image: '', description: 'Weekly breakdown of global and regional markets.' },
-    { title: 'Founder Stories', icon: '🚀', image: '', description: 'Raw, honest conversations with founders and CEOs.' },
+    { title: 'The Business Room', icon: '💼', image: '', description: 'Conversations with founders, CEOs and entrepreneurs building businesses.' },
+    { title: 'Market Talks', icon: '📈', image: '', description: 'Insights into Forex, financial markets and the global economy.' },
+    { title: 'Trading Psychology', icon: '🧠', image: '', description: 'Real conversations about discipline, mindset and the psychology behind trading.' },
+    { title: 'AI & Technology', icon: '🤖', image: '', description: 'Exploring artificial intelligence, innovation and the technologies shaping tomorrow.' },
     { title: 'Crypto Desk', icon: '🪙', image: '', description: 'Blockchain, digital assets and Web3 — explained clearly.' },
-    { title: 'Tech Forward', icon: '🤖', image: '', description: 'AI, software and the technologies shaping tomorrow.' },
   ],
   guests: [
     { name: 'Amina Warsame', role: 'Fintech Founder', image: '' },

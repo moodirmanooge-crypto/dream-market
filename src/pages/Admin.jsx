@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { collection, doc, getDoc, getDocs, onSnapshot, writeBatch } from 'firebase/firestore'
+import { collection, doc, getDoc, getDocs, onSnapshot, setDoc, writeBatch } from 'firebase/firestore'
 import { db } from '../firebase'
 import { COL, seed, defaultSettings } from '../data/seed'
 import { adminLogin, adminLogout, watchAdmin } from '../admin/adminAuth'
@@ -136,6 +136,23 @@ function Dashboard({ go }) {
     setBusy(false)
   }
 
+  // Pushes the latest recommended texts (hero, ticker, section titles) + the 5 new shows to Firestore
+  const applyNew = async () => {
+    if (!confirm('Hero-ga, ticker-ka, cinwaanada qaybaha iyo Shows-ka waxaa lagu beddelayaa qoraalada cusub ee la taliyay. Ma hubtaa?')) return
+    setBusy(true); setMsg('')
+    try {
+      await setDoc(doc(db, COL.settings, 'site'), { hero: defaultSettings.hero, ticker: defaultSettings.ticker, sections: defaultSettings.sections }, { merge: true })
+      const old = await getDocs(collection(db, COL.shows))
+      const b = writeBatch(db)
+      const keepImg = Object.fromEntries(old.docs.map((d) => [d.data().title, d.data().image]).filter(([, v]) => v))
+      old.docs.forEach((d) => b.delete(d.ref))
+      seed.shows.forEach((it) => b.set(doc(collection(db, COL.shows)), { ...it, image: keepImg[it.title] || '' }))
+      await b.commit()
+      setMsg('✓ Qoraalada cusub iyo 5-ta Shows waa la geliyay — fiiri website-ka.')
+    } catch (e) { setMsg(e.message) }
+    setBusy(false)
+  }
+
   const cards = [
     ['episodes', '🎙', 'Episodes'], ['shows', '📺', 'Shows'], ['guests', '👤', 'Guests'],
     ['partners', '🤝', 'Partners'], ['messages', '✉️', 'Fariimo'], ['subscribers', '📬', 'Subscribers'],
@@ -164,9 +181,9 @@ function Dashboard({ go }) {
         <h3>Xogta tusaalaha</h3>
         <p className="muted">Haddii Firestore madhan yahay, riix si demo content loogu shubo — kadib wax ka beddel.</p>
         <button className="btn btn--ghost" onClick={seedAll} disabled={busy}>{busy ? '…' : '⤓ Seed demo data'}</button>
+        <button className="btn btn--gold" style={{ marginLeft: 10 }} onClick={applyNew} disabled={busy}>⟳ Geli qoraalada cusub (Hero + Shows)</button>
         {msg && <p className={msg.startsWith('✓') ? 'ok' : 'err'}>{msg}</p>}
       </div>
     </div>
   )
 }
-
