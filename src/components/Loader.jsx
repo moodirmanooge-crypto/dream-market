@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 
-export default function Loader() {
+export default function Loader({ text = 'DMP', tag = '' }) {
   const [done, setDone] = useState(false)
   const [gone, setGone] = useState(false)
   useEffect(() => {
@@ -12,10 +12,10 @@ export default function Loader() {
   return (
     <div className={`loader ${done ? 'loader--out' : ''}`}>
       <div className="loader__logo">
-        {'DMP'.split('').map((c, i) => <span key={i} style={{ animationDelay: `${i * 0.15}s` }}>{c}</span>)}
+        {text.split('').map((c, i) => <span key={i} style={{ animationDelay: `${i * 0.15}s` }}>{c}</span>)}
       </div>
       <div className="loader__bar"><i /></div>
-      <p className="loader__tag">Where Financial Minds Meet</p>
+      <p className="loader__tag">{tag}</p>
     </div>
   )
 }

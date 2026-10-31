@@ -1,14 +1,14 @@
 import StudioScene from './StudioScene'
 import SectionHead from './SectionHead'
 
-export default function Featured({ episode, onPlay }) {
+export default function Featured({ episode, onPlay, head }) {
   if (!episode) return null
   return (
     <section className="section container" id="featured">
-      <SectionHead kicker="Featured Episode" title="The conversation" gold="everyone is talking about." />
+      <SectionHead {...head} />
       <article className="featured" data-reveal>
         <div className="featured__media">
-          {episode.image ? <img src={episode.image} alt={episode.title} className="kenburns" /> : <StudioScene hue={230} label="FEATURED" />}
+          {episode.image ? <img src={episode.image} alt={episode.title} /> : <StudioScene hue={230} label="FEATURED" />}
           <button className="play-big" onClick={() => onPlay(episode)} aria-label="Play featured">
             <span className="play-big__ring" /><span className="play-big__ring play-big__ring--2" />
             <svg viewBox="0 0 24 24" width="34" height="34"><path d="M8 5v14l11-7z" fill="currentColor" /></svg>
@@ -19,7 +19,7 @@ export default function Featured({ episode, onPlay }) {
           <h3>{episode.title}</h3>
           <p>{episode.description}</p>
           <div className="featured__guest">
-            <div className="avatar">{initials(episode.guest)}</div>
+            <div className="avatar">{episode.guestImage ? <img src={episode.guestImage} alt={episode.guest} /> : initials(episode.guest)}</div>
             <div><b>{episode.guest}</b><small>{episode.role}</small></div>
           </div>
           <div className="wave" aria-hidden>

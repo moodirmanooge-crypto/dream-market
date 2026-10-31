@@ -1,0 +1,22 @@
+// ============================================================================
+//  DREAM MARKET PODCAST — Storage rules (sawirada & muuqaalada)
+//  ⚠️  Kaliya ku DAR qaybta "BEGIN DREAM … END DREAM" gudaha:  match /b/{bucket}/o { ... }
+// ============================================================================
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+
+    // ---------------- BEGIN DREAM ----------------
+    match /dream/{allPaths=**} {
+      allow read: if true;
+      allow write: if request.auth != null
+        && firestore.exists(/databases/(default)/documents/dreamAdminSessions/$(request.auth.uid))
+        && request.resource.size < 500 * 1024 * 1024
+        && (request.resource.contentType.matches('image/.*') || request.resource.contentType.matches('video/.*'));
+      allow delete: if request.auth != null
+        && firestore.exists(/databases/(default)/documents/dreamAdminSessions/$(request.auth.uid));
+    }
+    // ---------------- END DREAM ----------------
+
+  }
+}

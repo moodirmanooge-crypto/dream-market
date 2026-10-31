@@ -1,44 +1,35 @@
-# Dream Market Podcast — React + Vite + Firestore
+# Dream Market Podcast — React + Vite + Firestore (v2)
 
-Website casri ah (Black · Gold · White) oo leh animations, sliders, mobile & laptop design, iyo Firestore database.
+## Waxa cusub
+- **`/admin`** si toos ah ayuu u furmaa (tusaale `dream.galladtech.com/admin`).
+- **Login** wuxuu ka akhriyaa collection-ka **`admin-dream`** (username + password). Admin cusub ku dar: doc cusub oo ID-giisu = username-ka.
+- Admin-ku wuxuu maamulaa **wax kasta**: logo, hero, qoraalada, badhamada, ticker, stats, cinwaanada qaybaha, About, contact, social links, footer,
+  episodes, shows, guests, partners, fariimaha iyo subscribers.
+- **Upload sawir & video** (Firebase Storage) ama ku dheji link.
+- **Kala horreyn (position):** ↑ ↓ — website-ku sida admin-ku u dhigo ayuu u muujiyaa. 🙈 = qari.
 
-## 1. Ku shaqeysii kombiyuutarkaaga
+## ⚙️ Firebase — samee hal mar
+1. **Authentication → Sign-in method → Anonymous → Enable** (login-ka admin-ka ayaa u baahan).
+2. **Firestore → Rules:** fur `firestore.rules`, koobi qaybta `BEGIN DREAM … END DREAM` kuna dar rules-kaaga hadda jira
+   gudaha `match /databases/{database}/documents { … }` → **Publish**. ⚠️ Ha tirtirin rules-ka apps-kaaga kale.
+3. **Storage → Rules:** sidoo kale ku dar qaybta `BEGIN DREAM … END DREAM` ee `storage.rules` → **Publish**
+   (haddii la weydiiyo "grant permission to access Firestore" → Allow).
+4. Gal `/admin` → Dashboard → **Seed demo data** (hal mar) → kadib wax walba wax ka beddel.
+
+> Haddii rules-kaagu leeyihiin `allow read, write: if true` oo guud (test mode), qof kasta wuu akhrin karaa `admin-dream`. Ka saar si password-ku u ammaan noqdo.
+
+## Hosting — si `/admin` u shaqeeyo
+| Host | File (waa la sameeyay) |
+|---|---|
+| cPanel / Hostinger / Apache | `public/.htaccess` (wuxuu galayaa `dist/`) |
+| Netlify | `public/_redirects` |
+| Vercel | `vercel.json` |
+| Firebase Hosting | `firebase.json` |
+
 ```bash
 npm install
-npm run dev        # http://localhost:5173
-npm run build      # dist/ folder-ka ayaa diyaar u ah hosting
+npm run build     # kadib dist/ oo dhan upload garee (ay ku jirto .htaccess)
 ```
 
-## 2. Firebase (project: barakaat-a9fe1) — config-ga waa ku jiraa `src/firebase.js`
-1. Firebase Console → **Firestore Database** → Create database.
-2. **Rules** tab → ku dheji waxa ku jira `firestore.rules` → Publish.
-3. **Authentication** → Sign-in method → Email/Password **Enable** → Users → **Add user** (admin-kaaga).
-
-## 3. Admin Panel
-- Fur: `http://localhost:5173/#/admin` (ama link-ga "Admin" ee footer-ka).
-- Ku gal email/password-ka admin-ka.
-- Riix **Seed demo data** si xogta tusaalaha ah loogu shubo Firestore, kadibna ku dar / beddel / tirtir:
-  **episodes, shows, guests, partners**. Waxaad sidoo kale arki kartaa **messages** (contact form) iyo **subscribers** (newsletter).
-- Episode kasta waxaad siin kartaa **YouTube link** (wuxuu ka furmaa player modal) iyo **image URL**.
-
-## 4. Sawirka hero-ga
-Sawirkaaga (tusaale studio-ga sabahvisions) ku rid `public/hero.jpg` — si toos ah ayuu u soo baxayaa slide-ka koowaad.
-Haddii aanu jirin, studio illustration animated ah ayaa la tusaa.
-
-## Firestore collections
-| Collection | Fields |
-|---|---|
-| episodes | number, title, guest, role, category, duration, youtube, image, description, featured |
-| shows | title, icon, description |
-| guests | name, role, image |
-| partners | name, logo |
-| messages | name, email, type, message, createdAt (website-ka ayaa qora) |
-| subscribers | email, createdAt (website-ka ayaa qora) |
-
-## Hosting (Firebase)
-```bash
-npm i -g firebase-tools
-firebase login
-firebase init hosting   # public dir: dist, single-page app: yes
-npm run build && firebase deploy
-```
+## Collections (Firestore)
+`dreamSettings/site` · `dreamEpisodes` · `dreamShows` · `dreamGuests` · `dreamPartners` · `dreamMessages` · `dreamSubscribers` · `dreamAdminSessions` · `admin-dream` (adiga ayaa maamula)

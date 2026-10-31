@@ -1,21 +1,60 @@
+// ============================================================================
+//  DREAM MARKET PODCAST — Firestore rules
+//  ⚠️  Ha tirtirin rules-ka apps-kaaga kale! Kaliya ku DAR qaybta u dhaxaysa
+//      "BEGIN DREAM" iyo "END DREAM" gudaha:  match /databases/{database}/documents { ... }
+// ============================================================================
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Content: everyone can read, only signed-in admin can write
-    match /{col}/{id} {
-      allow read: if col in ['episodes','shows','guests','partners','settings'];
-      allow write: if request.auth != null;
+
+    // ---------------- BEGIN DREAM ----------------
+    function dreamAdminPath(id) { return /databases/$(database)/documents/admin-dream/$(id); }
+
+    // username + password are compared HERE (server side) — never sent to browsers
+    function dreamValidAdmin(id, u, p) {
+      return id is string && exists(dreamAdminPath(id))
+        && get(dreamAdminPath(id)).data.username == u
+        && get(dreamAdminPath(id)).data.password == p;
     }
-    // Visitors can send messages & subscribe, only admin can read them
-    match /messages/{id} {
-      allow create: if request.resource.data.keys().hasAll(['name','email','message'])
-                    && request.resource.data.message is string
-                    && request.resource.data.message.size() < 3000;
-      allow read, update, delete: if request.auth != null;
+    function dreamSessionPath() { return /databases/$(database)/documents/dreamAdminSessions/$(request.auth.uid); }
+    function isDreamAdmin() {
+      return request.auth != null
+        && exists(dreamSessionPath())
+        && request.time < get(dreamSessionPath()).data.createdAt + duration.value(7, 'd')
+        && dreamValidAdmin(get(dreamSessionPath()).data.adminId,
+                           get(dreamSessionPath()).data.username,
+                           get(dreamSessionPath()).data.password);
     }
-    match /subscribers/{id} {
-      allow create: if request.resource.data.email is string;
-      allow read, update, delete: if request.auth != null;
+
+    // Admin accounts: edited only from Firebase Console (nobody can read them from the web)
+    match /admin-dream/{id} { allow read, write: if false; }
+
+    // Login session (created only when username + password match admin-dream)
+    match /dreamAdminSessions/{uid} {
+      allow create, update: if request.auth != null && request.auth.uid == uid
+        && request.resource.data.createdAt == request.time
+        && dreamValidAdmin(request.resource.data.adminId, request.resource.data.username, request.resource.data.password);
+      allow read, delete: if request.auth != null && request.auth.uid == uid;
     }
+
+    // Website content: everyone reads, only admin writes
+    match /dreamSettings/{id}  { allow read: if true; allow write: if isDreamAdmin(); }
+    match /dreamEpisodes/{id}  { allow read: if true; allow write: if isDreamAdmin(); }
+    match /dreamShows/{id}     { allow read: if true; allow write: if isDreamAdmin(); }
+    match /dreamGuests/{id}    { allow read: if true; allow write: if isDreamAdmin(); }
+    match /dreamPartners/{id}  { allow read: if true; allow write: if isDreamAdmin(); }
+
+    // Visitors send messages / subscribe; only admin reads them
+    match /dreamMessages/{id} {
+      allow create: if request.resource.data.message is string && request.resource.data.message.size() < 3000
+                    && request.resource.data.email is string;
+      allow read, update, delete: if isDreamAdmin();
+    }
+    match /dreamSubscribers/{id} {
+      allow create: if request.resource.data.email is string && request.resource.data.email.size() < 200;
+      allow read, delete: if isDreamAdmin();
+    }
+    // ---------------- END DREAM ----------------
+
   }
 }

@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react'
+import Brand from './Brand'
 
 const links = ['Home', 'About', 'Shows', 'Episodes', 'Guests', 'Partners', 'Contact']
 
-export default function Navbar() {
+export default function Navbar({ brand }) {
   const [open, setOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
   const [progress, setProgress] = useState(0)
@@ -34,16 +35,13 @@ export default function Navbar() {
     <>
       <header className={`nav ${scrolled ? 'nav--scrolled' : ''}`}>
         <div className="nav__inner container">
-          <button className="nav__brand" onClick={() => go('home')} aria-label="Dream Market Podcast home">
-            <span className="nav__logo">DMP</span>
-            <span className="nav__name">DREAM MARKET PODCAST</span>
-          </button>
+          <button onClick={() => go('home')} aria-label="Home"><Brand brand={brand} /></button>
           <nav className="nav__links">
             {links.map((l) => (
               <button key={l} className={active === l.toLowerCase() ? 'is-active' : ''} onClick={() => go(l.toLowerCase())}>{l}</button>
             ))}
           </nav>
-          <button className="btn btn--gold btn--sm nav__cta" onClick={() => go('episodes')}>Listen Now</button>
+          <button className="btn btn--gold btn--sm nav__cta" onClick={() => go('episodes')}>{brand.navButton}</button>
           <button className={`burger ${open ? 'is-open' : ''}`} onClick={() => setOpen(!open)} aria-label="Menu">
             <span /><span /><span />
           </button>
@@ -58,7 +56,7 @@ export default function Navbar() {
             <small>0{i + 1}</small>{l}
           </button>
         ))}
-        <p className="mobile-menu__foot">Business. Finance. Technology. People.</p>
+        <p className="mobile-menu__foot">{brand.name}</p>
       </div>
     </>
   )

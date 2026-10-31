@@ -1,6 +1,6 @@
 import SectionHead from './SectionHead'
 
-export default function Shows({ shows }) {
+export default function Shows({ shows, head }) {
   const tilt = (e) => {
     const r = e.currentTarget.getBoundingClientRect()
     const x = (e.clientX - r.left) / r.width - 0.5
@@ -13,16 +13,16 @@ export default function Shows({ shows }) {
   return (
     <section id="shows" className="section section--alt">
       <div className="container">
-        <SectionHead kicker="Our Shows" title="Programs built for" gold="ambitious minds." center
-          text="Each show focuses on a different side of the new economy — from global markets to the founders building Africa's future." />
+        <SectionHead {...head} center />
         <div className="shows">
           {shows.map((s, i) => (
-            <article key={s.id || s.title} className="show" data-reveal style={{ transitionDelay: `${i * 0.1}s` }} onMouseMove={tilt} onMouseLeave={reset}>
-              <span className="show__index">0{i + 1}</span>
+            <article key={s.id || s.title} className={`show ${s.image ? 'show--img' : ''}`} data-reveal style={{ transitionDelay: `${i * 0.1}s` }} onMouseMove={tilt} onMouseLeave={reset}>
+              {s.image && <div className="show__bg"><img src={s.image} alt="" /></div>}
+              <span className="show__index">{String(i + 1).padStart(2, '0')}</span>
               <div className="show__icon">{s.icon || '🎙️'}</div>
               <h3>{s.title}</h3>
               <p>{s.description}</p>
-              <span className="show__more">Explore →</span>
+              {s.link ? <a className="show__more" href={s.link} target="_blank" rel="noreferrer">Explore →</a> : <a className="show__more" href="#episodes">Explore →</a>}
             </article>
           ))}
         </div>

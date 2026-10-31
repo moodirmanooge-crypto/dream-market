@@ -6,18 +6,21 @@ import TextRotator from './TextRotator'
 const HUES = [222, 210, 260, 195, 235, 245]
 const DURATION = 6000
 
-export default function Hero({ episodes, onPlay }) {
-  const slides = episodes.slice(0, 5)
+export default function Hero({ episodes, onPlay, hero }) {
+  const picked = episodes.filter((e) => e.showInHero)
+  const slides = (picked.length ? picked : episodes).slice(0, 8)
   const [idx, setIdx] = useState(0)
   const [paused, setPaused] = useState(false)
   const [heroImg, setHeroImg] = useState(null)
 
   // Optional: put your own photo at public/hero.jpg and it is used automatically
   useEffect(() => {
+    if (hero.image) return setHeroImg(hero.image)
     const img = new Image()
     img.onload = () => setHeroImg('/hero.jpg')
     img.src = '/hero.jpg'
-  }, [])
+  }, [hero.image])
+  useEffect(() => { if (idx >= slides.length) setIdx(0) }, [slides.length, idx])
 
   useEffect(() => {
     if (paused || slides.length < 2) return
@@ -26,8 +29,8 @@ export default function Hero({ episodes, onPlay }) {
   }, [idx, paused, slides.length])
 
   const s = slides[idx] || {}
-  const headline = ['Where', 'Financial', 'Minds', 'Meet.']
-  const image = s.image || (idx === 0 ? heroImg : null)
+  const headline = (hero.title || '').split(' ').filter(Boolean)
+  const image = s.image || heroImg
 
   const touchRef = useRef(0)
   return (
@@ -38,14 +41,14 @@ export default function Hero({ episodes, onPlay }) {
         <div className="hero__copy">
           <motion.div className="hero__line" initial={{ scaleX: 0 }} animate={{ scaleX: 1 }} transition={{ delay: 2, duration: 1.1, ease: [0.7, 0, 0.2, 1] }} />
           <motion.p className="eyebrow" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 2.1 }}>
-            <span className="live-dot" /> New episode every week
+            <span className="live-dot" /> {hero.eyebrow}
           </motion.p>
 
           <h1 className="hero__title">
             {headline.map((w, i) => (
-              <span className="word-mask" key={w}>
+              <span className="word-mask" key={w + i}>
                 <motion.span
-                  className={w === 'Minds' ? 'gold-text' : ''}
+                  className={hero.goldWord && w.replace(/[.,!]/g, '') === hero.goldWord ? 'gold-text' : ''}
                   initial={{ y: '110%', rotate: 6 }}
                   animate={{ y: 0, rotate: 0 }}
                   transition={{ delay: 2.15 + i * 0.12, duration: 0.9, ease: [0.2, 0.8, 0.2, 1] }}
@@ -55,21 +58,21 @@ export default function Hero({ episodes, onPlay }) {
           </h1>
 
           <motion.p className="hero__sub" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 2.8 }}>
-            Business. Finance. Technology. People. <br />
-            Conversations about <TextRotator words={['Finance', 'Crypto', 'Markets', 'Startups', 'Technology', 'Leadership']} />
+            {hero.subtitle} <br />
+            {hero.rotatorPrefix} {hero.rotatorWords?.length > 0 && <TextRotator words={hero.rotatorWords} />}
           </motion.p>
 
           <motion.div className="hero__ctas" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 3 }}>
             <a href="#episodes" className="btn btn--gold btn--lg magnetic">
-              <span>WATCH EPISODES</span>
+              <span>{hero.primaryButton}</span>
               <svg width="18" height="18" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" strokeWidth="2.2" fill="none" strokeLinecap="round" /></svg>
             </a>
-            <a href="#about" className="btn btn--ghost btn--lg">Our Story</a>
+            <a href="#about" className="btn btn--ghost btn--lg">{hero.secondaryButton}</a>
           </motion.div>
 
           <motion.div className="hero__platforms" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 3.3 }}>
-            <span>Available on</span>
-            <b>YouTube</b><b>Spotify</b><b>Apple Podcasts</b>
+            <span>{hero.platformsLabel}</span>
+            {(hero.platforms || []).map((p) => <b key={p}>{p}</b>)}
           </motion.div>
         </div>
 
@@ -95,7 +98,7 @@ export default function Hero({ episodes, onPlay }) {
               exit={{ opacity: 0, scale: 1.04 }}
               transition={{ duration: 1.1, ease: [0.7, 0, 0.2, 1] }}
             >
-              {image ? <img className="slide__img kenburns" src={image} alt={s.title} /> : <StudioScene hue={HUES[idx % HUES.length]} />}
+              {image ? <img className="slide__img kenburns" src={image} alt={s.title || ''} /> : <StudioScene hue={HUES[idx % HUES.length]} />}
               <div className="slide__shade" />
               <div className="slide__info">
                 <motion.span className="chip" initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }}>
@@ -107,7 +110,7 @@ export default function Hero({ episodes, onPlay }) {
               <button className="slide__play" onClick={() => onPlay(s)} aria-label="Play episode">
                 <svg viewBox="0 0 24 24" width="26" height="26"><path d="M8 5v14l11-7z" fill="currentColor" /></svg>
               </button>
-              <span className="slide__brand">sabahvisions</span>
+              {hero.slideBadge && <span className="slide__brand">{hero.slideBadge}</span>}
             </motion.div>
           </AnimatePresence>
 

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import Loader from '../components/Loader'
 import Cursor from '../components/Cursor'
 import Navbar from '../components/Navbar'
@@ -15,37 +15,41 @@ import Contact from '../components/Contact'
 import Footer from '../components/Footer'
 import PlayerModal from '../components/PlayerModal'
 import { useCollection } from '../hooks/useCollection'
+import { useSettings } from '../hooks/useSettings'
 import { useReveal } from '../hooks/useReveal'
 
 export default function Home() {
-  const { items: episodes } = useCollection('episodes', 'number')
-  const { items: shows } = useCollection('shows')
-  const { items: guests } = useCollection('guests')
-  const { items: partners } = useCollection('partners')
+  const s = useSettings()
+  const episodes = useCollection('episodes')
+  const shows = useCollection('shows')
+  const guests = useCollection('guests')
+  const partners = useCollection('partners')
   const [playing, setPlaying] = useState(null)
-  useReveal([episodes.length, shows.length, guests.length, partners.length])
+  useReveal([episodes, shows, guests, partners, s])
+  useEffect(() => { document.title = `${s.brand.name} | ${s.hero.title}` }, [s.brand.name, s.hero.title])
 
   const featured = episodes.find((e) => e.featured) || episodes[0]
+  const sec = s.sections
 
   return (
     <>
-      <Loader />
+      <Loader text={s.brand.logoText} tag={s.hero.title} />
       <Cursor />
       <div className="noise" aria-hidden />
-      <Navbar />
+      <Navbar brand={s.brand} />
       <main>
-        <Hero episodes={episodes} onPlay={setPlaying} />
-        <Ticker />
-        <Stats episodes={episodes.length} guests={guests.length} />
-        <Featured episode={featured} onPlay={setPlaying} />
-        <Episodes episodes={episodes} onPlay={setPlaying} />
-        <Shows shows={shows} />
-        <Guests guests={guests} />
-        <About />
-        <Partners partners={partners} />
-        <Contact />
+        <Hero episodes={episodes} onPlay={setPlaying} hero={s.hero} />
+        <Ticker ticker={s.ticker} />
+        <Stats stats={s.stats} />
+        <Featured episode={featured} onPlay={setPlaying} head={sec.featured} />
+        <Episodes episodes={episodes} onPlay={setPlaying} head={sec.episodes} />
+        {shows.length > 0 && <Shows shows={shows} head={sec.shows} />}
+        {guests.length > 0 && <Guests guests={guests} head={sec.guests} />}
+        <About about={s.about} head={sec.about} />
+        {partners.length > 0 && <Partners partners={partners} head={sec.partners} cta={s.partnersCta} />}
+        <Contact contact={s.contact} head={sec.contact} />
       </main>
-      <Footer />
+      <Footer footer={s.footer} social={s.social} brand={s.brand} />
       <PlayerModal episode={playing} onClose={() => setPlaying(null)} />
     </>
   )

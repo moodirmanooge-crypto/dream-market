@@ -1,15 +1,13 @@
 import SectionHead from './SectionHead'
 import { initials } from './Featured'
 
-export default function Guests({ guests }) {
+export default function Guests({ guests, head }) {
   const loop = [...guests, ...guests]
   return (
     <section id="guests" className="section">
-      <div className="container">
-        <SectionHead kicker="Meet Our Guests" title="CEOs, founders &" gold="investors." text="The people shaping business and finance — in their own words." />
-      </div>
+      <div className="container"><SectionHead {...head} /></div>
       <div className="guests">
-        <div className="guests__track">
+        <div className="guests__track" style={{ animationDuration: `${Math.max(guests.length * 6, 20)}s` }}>
           {loop.map((g, i) => (
             <figure className="guest" key={i}>
               <div className="guest__photo">

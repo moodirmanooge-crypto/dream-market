@@ -1,133 +1,172 @@
 import { useEffect, useState } from 'react'
-import { onAuthStateChanged, signInWithEmailAndPassword, signOut } from 'firebase/auth'
-import { addDoc, collection, deleteDoc, doc, onSnapshot, serverTimestamp, updateDoc, writeBatch } from 'firebase/firestore'
-import { auth, db } from '../firebase'
-import { seed } from '../data/seed'
+import { Link } from 'react-router-dom'
+import { collection, doc, getDoc, getDocs, onSnapshot, writeBatch } from 'firebase/firestore'
+import { db } from '../firebase'
+import { COL, seed, defaultSettings } from '../data/seed'
+import { adminLogin, adminLogout, watchAdmin } from '../admin/adminAuth'
+import SettingsEditor from '../admin/SettingsEditor'
+import CollectionManager from '../admin/CollectionManager'
+import Inbox from '../admin/Inbox'
 
-const SCHEMAS = {
-  episodes: [['number', 'number'], ['title'], ['guest'], ['role'], ['category'], ['duration'], ['youtube', 'url'], ['image', 'url'], ['description', 'textarea'], ['featured', 'checkbox']],
-  shows: [['title'], ['icon'], ['description', 'textarea']],
-  guests: [['name'], ['role'], ['image', 'url']],
-  partners: [['name'], ['logo', 'url']],
-}
-const TABS = [...Object.keys(SCHEMAS), 'messages', 'subscribers']
+const NAV = [
+  { group: 'Guud' },
+  { id: 'dashboard', icon: '📊', label: 'Dashboard' },
+  { group: 'Bogga (Website content)' },
+  { id: 'hero', icon: '🏠', label: 'Logo & Hero', keys: ['brand', 'hero'], help: 'Logo-ga, cinwaanka weyn, qoraalada, badhamada iyo sawirka hero-ga.' },
+  { id: 'ticker', icon: '📈', label: 'Ticker & Stats', keys: ['ticker', 'stats'], help: 'Qoraalada socda iyo tirooyinka.' },
+  { id: 'sections', icon: '🔤', label: 'Cinwaanada qaybaha', keys: ['sections'], help: 'Kicker, cinwaan iyo erayga dahabka ah ee qayb kasta.' },
+  { id: 'about', icon: 'ℹ️', label: 'About', keys: ['about'], help: 'Qoraalka, sawirka, Mission/Vision/Values iyo timeline.' },
+  { id: 'contact', icon: '☎️', label: 'Contact & Social', keys: ['contact', 'social', 'partnersCta'], help: 'Email, telefoon, social media links iyo partners CTA.' },
+  { id: 'footer', icon: '⬇️', label: 'Footer', keys: ['footer'] },
+  { group: 'Xogta (Content)' },
+  { id: 'episodes', icon: '🎙', label: 'Episodes', col: true },
+  { id: 'shows', icon: '📺', label: 'Shows', col: true },
+  { id: 'guests', icon: '👤', label: 'Guests', col: true },
+  { id: 'partners', icon: '🤝', label: 'Partners', col: true },
+  { group: 'Sanduuqa' },
+  { id: 'messages', icon: '✉️', label: 'Fariimaha', inbox: true },
+  { id: 'subscribers', icon: '📬', label: 'Subscribers', inbox: true },
+]
 
 export default function Admin() {
-  const [user, setUser] = useState(undefined)
-  const [cred, setCred] = useState({ email: '', password: '' })
+  const [admin, setAdmin] = useState(undefined)
+  useEffect(() => watchAdmin(setAdmin), [])
+  useEffect(() => { document.title = 'Admin | Dream Market Podcast' }, [])
+  if (admin === undefined) return <div className="adm-center"><div className="adm-spin" /></div>
+  if (!admin) return <Login onDone={setAdmin} />
+  return <Panel admin={admin} onLogout={async () => { await adminLogout(); setAdmin(null) }} />
+}
+
+function Login({ onDone }) {
+  const [u, setU] = useState('')
+  const [p, setP] = useState('')
+  const [show, setShow] = useState(false)
   const [err, setErr] = useState('')
-  const [tab, setTab] = useState('episodes')
-  const [rows, setRows] = useState([])
-  const [form, setForm] = useState({})
-  const [editId, setEditId] = useState(null)
   const [busy, setBusy] = useState(false)
-
-  useEffect(() => onAuthStateChanged(auth, setUser), [])
-  useEffect(() => {
-    if (!user) return
-    return onSnapshot(collection(db, tab), (s) => setRows(s.docs.map((d) => ({ id: d.id, ...d.data() }))), (e) => setErr(e.message))
-  }, [tab, user])
-
-  const login = async (e) => {
-    e.preventDefault(); setErr('')
-    try { await signInWithEmailAndPassword(auth, cred.email, cred.password) } catch (e) { setErr(e.message) }
-  }
-
-  const save = async (e) => {
-    e.preventDefault(); setBusy(true)
-    const data = { ...form }
-    if (data.number !== undefined) data.number = Number(data.number) || 0
-    try {
-      if (editId) await updateDoc(doc(db, tab, editId), data)
-      else await addDoc(collection(db, tab), { ...data, createdAt: serverTimestamp() })
-      setForm({}); setEditId(null)
-    } catch (e) { setErr(e.message) }
+  const submit = async (e) => {
+    e.preventDefault(); setErr(''); setBusy(true)
+    try { onDone(await adminLogin(u, p)) } catch (e) {
+      setErr(e.code === 'auth/admin-restricted-operation' || e.code === 'auth/operation-not-allowed'
+        ? 'Anonymous sign-in ma shidna: Firebase → Authentication → Sign-in method → Anonymous → Enable.' : e.message)
+    }
     setBusy(false)
   }
-
-  const remove = async (id) => { if (confirm('Delete this item?')) await deleteDoc(doc(db, tab, id)) }
-
-  const seedAll = async () => {
-    if (!confirm('Upload all demo content (episodes, shows, guests, partners) to Firestore?')) return
-    setBusy(true)
-    try {
-      const b = writeBatch(db)
-      Object.entries(seed).forEach(([col, list]) => list.forEach((item, i) => {
-        b.set(doc(collection(db, col)), { ...item, createdAt: { seconds: i, nanoseconds: 0 } })
-      }))
-      await b.commit()
-      alert('Done! Demo content is now in Firestore.')
-    } catch (e) { setErr(e.message) }
-    setBusy(false)
-  }
-
-  if (user === undefined) return <div className="admin admin--center">Loading…</div>
-
-  if (!user) return (
-    <div className="admin admin--center">
-      <form className="admin__login" onSubmit={login}>
-        <div className="nav__brand"><span className="nav__logo">DMP</span><span className="nav__name">ADMIN</span></div>
-        <input type="email" placeholder="Admin email" value={cred.email} onChange={(e) => setCred({ ...cred, email: e.target.value })} required />
-        <input type="password" placeholder="Password" value={cred.password} onChange={(e) => setCred({ ...cred, password: e.target.value })} required />
-        <button className="btn btn--gold btn--full">Sign in</button>
+  return (
+    <div className="adm-center adm-loginbg">
+      <form className="adm-login" onSubmit={submit}>
+        <div className="adm-login__logo">DMP</div>
+        <h1>Admin Panel</h1>
+        <p>Dream Market Podcast</p>
+        <label className="adm-field"><span>Username</span><input autoFocus autoComplete="username" value={u} onChange={(e) => setU(e.target.value)} required /></label>
+        <label className="adm-field"><span>Password</span>
+          <div className="adm-pass"><input type={show ? 'text' : 'password'} autoComplete="current-password" value={p} onChange={(e) => setP(e.target.value)} required />
+            <button type="button" onClick={() => setShow(!show)}>{show ? '🙈' : '👁'}</button></div>
+        </label>
+        <button className="btn btn--gold btn--full btn--lg" disabled={busy}>{busy ? 'Hubinaya…' : 'Gal →'}</button>
         {err && <p className="err">{err}</p>}
-        <small>Create the admin user in Firebase Console → Authentication → Users.</small>
-        <a href="#/">← Back to website</a>
+        <Link to="/" className="adm-login__back">← Ku noqo website-ka</Link>
       </form>
     </div>
   )
+}
 
-  const schema = SCHEMAS[tab]
+function Panel({ admin, onLogout }) {
+  const [tab, setTab] = useState(() => sessionStorage.getItem('dmp-admin-tab') || 'dashboard')
+  const [menu, setMenu] = useState(false)
+  useEffect(() => { try { sessionStorage.setItem('dmp-admin-tab', tab) } catch { /* ignore */ } window.scrollTo(0, 0) }, [tab])
+  const item = NAV.find((n) => n.id === tab) || NAV[1]
+
   return (
-    <div className="admin">
-      <header className="admin__top">
-        <div className="nav__brand"><span className="nav__logo">DMP</span><span className="nav__name">ADMIN PANEL</span></div>
-        <div className="admin__actions">
-          <a className="btn btn--ghost btn--sm" href="#/">View site</a>
-          <button className="btn btn--ghost btn--sm" onClick={seedAll} disabled={busy}>Seed demo data</button>
-          <button className="btn btn--gold btn--sm" onClick={() => signOut(auth)}>Sign out</button>
+    <div className="adm">
+      <aside className={`adm-side ${menu ? 'is-open' : ''}`}>
+        <div className="adm-side__brand"><span className="nav__logo">DMP</span><span className="nav__name">ADMIN</span></div>
+        <nav>
+          {NAV.map((n, i) => n.group
+            ? <p key={i} className="adm-side__group">{n.group}</p>
+            : <button key={n.id} className={tab === n.id ? 'is-on' : ''} onClick={() => { setTab(n.id); setMenu(false) }}><span>{n.icon}</span>{n.label}</button>)}
+        </nav>
+        <div className="adm-side__foot">
+          <div className="adm-user"><span>{admin.username?.[0]?.toUpperCase()}</span><div><b>{admin.username}</b><small>Admin</small></div></div>
+          <button className="btn btn--ghost btn--sm btn--full" onClick={onLogout}>Ka bax</button>
         </div>
-      </header>
-      <nav className="admin__tabs">
-        {TABS.map((t) => <button key={t} className={t === tab ? 'is-on' : ''} onClick={() => { setTab(t); setForm({}); setEditId(null) }}>{t}</button>)}
-      </nav>
-      {err && <p className="err admin__err" onClick={() => setErr('')}>{err} ✕</p>}
+      </aside>
+      {menu && <div className="adm-scrim" onClick={() => setMenu(false)} />}
 
-      <div className="admin__body">
-        {schema && (
-          <form className="admin__form" onSubmit={save}>
-            <h3>{editId ? 'Edit' : 'Add'} {tab.slice(0, -1)}</h3>
-            {schema.map(([k, type]) => (
-              <label key={k} className={type === 'checkbox' ? 'admin__check' : ''}>
-                <span>{k}</span>
-                {type === 'textarea' ? <textarea rows="3" value={form[k] || ''} onChange={(e) => setForm({ ...form, [k]: e.target.value })} />
-                  : type === 'checkbox' ? <input type="checkbox" checked={!!form[k]} onChange={(e) => setForm({ ...form, [k]: e.target.checked })} />
-                  : <input type={type || 'text'} value={form[k] ?? ''} onChange={(e) => setForm({ ...form, [k]: e.target.value })} required={k === 'title' || k === 'name'} />}
-              </label>
-            ))}
-            <div className="admin__formbtns">
-              <button className="btn btn--gold" disabled={busy}>{editId ? 'Update' : 'Add'}</button>
-              {editId && <button type="button" className="btn btn--ghost" onClick={() => { setForm({}); setEditId(null) }}>Cancel</button>}
-            </div>
-          </form>
-        )}
-        <div className="admin__list">
-          <h3>{tab} <small>({rows.length})</small></h3>
-          {rows.length === 0 && <p className="muted">Nothing here yet.</p>}
-          {rows.map((r) => (
-            <div key={r.id} className="admin__row">
-              <div>
-                <b>{r.title || r.name || r.email}</b>
-                <small>{r.guest || r.role || r.type || r.description || ''}{r.message ? ` — ${r.message}` : ''}</small>
-              </div>
-              <div className="admin__rowbtns">
-                {schema && <button onClick={() => { const { id, createdAt, ...rest } = r; setForm(rest); setEditId(id); window.scrollTo({ top: 0, behavior: 'smooth' }) }}>Edit</button>}
-                <button className="danger" onClick={() => remove(r.id)}>Delete</button>
-              </div>
-            </div>
-          ))}
+      <div className="adm-main">
+        <header className="adm-top">
+          <button className="adm-burger" onClick={() => setMenu(true)} aria-label="Menu">☰</button>
+          <b>{item.icon} {item.label}</b>
+          <a className="btn btn--ghost btn--sm" href="/" target="_blank" rel="noreferrer">↗ Fiiri website-ka</a>
+        </header>
+        <div className="adm-content">
+          {tab === 'dashboard' && <Dashboard go={setTab} />}
+          {item.keys && <SettingsEditor key={item.id} keys={item.keys} title={item.label} help={item.help} />}
+          {item.col && <CollectionManager name={item.id} />}
+          {item.inbox && <Inbox name={item.id} />}
         </div>
       </div>
     </div>
   )
 }
+
+function Dashboard({ go }) {
+  const [counts, setCounts] = useState({})
+  const [msg, setMsg] = useState('')
+  const [busy, setBusy] = useState(false)
+  useEffect(() => {
+    const unsubs = ['episodes', 'shows', 'guests', 'partners', 'messages', 'subscribers'].map((n) =>
+      onSnapshot(collection(db, COL[n]), (s) => setCounts((c) => ({ ...c, [n]: s.size, [`${n}New`]: s.docs.filter((d) => d.data().read === false).length })), () => {}))
+    return () => unsubs.forEach((u) => u())
+  }, [])
+
+  const seedAll = async () => {
+    if (!confirm('Xogta tusaalaha ah ku shub Firestore? (Kaliya qaybaha madhan ayaa la buuxinayaa)')) return
+    setBusy(true); setMsg('')
+    try {
+      const b = writeBatch(db); let n = 0
+      for (const [name, list] of Object.entries(seed)) {
+        const existing = await getDocs(collection(db, COL[name]))
+        if (existing.empty) list.forEach((it) => { b.set(doc(collection(db, COL[name])), it); n++ })
+      }
+      const site = await getDoc(doc(db, COL.settings, 'site'))
+      if (!site.exists()) { b.set(doc(db, COL.settings, 'site'), defaultSettings); n++ }
+      await b.commit()
+      setMsg(n ? `✓ ${n} shay ayaa la shubay.` : 'Wax madhan ma jiro — xogtu horay ayay u jirtay.')
+    } catch (e) { setMsg(e.message) }
+    setBusy(false)
+  }
+
+  const cards = [
+    ['episodes', '🎙', 'Episodes'], ['shows', '📺', 'Shows'], ['guests', '👤', 'Guests'],
+    ['partners', '🤝', 'Partners'], ['messages', '✉️', 'Fariimo'], ['subscribers', '📬', 'Subscribers'],
+  ]
+  return (
+    <div>
+      <div className="adm-pagehead"><div><h2>Ku soo dhawoow 👋</h2><p>Halkan ka maamul dhammaan website-ka Dream Market Podcast.</p></div></div>
+      <div className="adm-stats">
+        {cards.map(([k, ic, l]) => (
+          <button key={k} className="adm-stat" onClick={() => go(k)}>
+            <span>{ic}</span><strong>{counts[k] ?? '—'}</strong><small>{l}</small>
+            {k === 'messages' && counts.messagesNew > 0 && <em>{counts.messagesNew} cusub</em>}
+          </button>
+        ))}
+      </div>
+      <div className="adm-card">
+        <h3>Bilow degdeg ah</h3>
+        <div className="adm-quick">
+          <button onClick={() => go('episodes')}>+ Episode cusub</button>
+          <button onClick={() => go('hero')}>Beddel Hero-ga</button>
+          <button onClick={() => go('guests')}>+ Marti cusub</button>
+          <button onClick={() => go('contact')}>Social links</button>
+        </div>
+      </div>
+      <div className="adm-card">
+        <h3>Xogta tusaalaha</h3>
+        <p className="muted">Haddii Firestore madhan yahay, riix si demo content loogu shubo — kadib wax ka beddel.</p>
+        <button className="btn btn--ghost" onClick={seedAll} disabled={busy}>{busy ? '…' : '⤓ Seed demo data'}</button>
+        {msg && <p className={msg.startsWith('✓') ? 'ok' : 'err'}>{msg}</p>}
+      </div>
+    </div>
+  )
+}
+

@@ -2,7 +2,7 @@ import { useMemo, useRef, useState } from 'react'
 import StudioScene from './StudioScene'
 import SectionHead from './SectionHead'
 
-export default function Episodes({ episodes, onPlay }) {
+export default function Episodes({ episodes, onPlay, head }) {
   const cats = useMemo(() => ['All', ...new Set(episodes.map((e) => e.category).filter(Boolean))], [episodes])
   const [cat, setCat] = useState('All')
   const track = useRef(null)
@@ -27,7 +27,7 @@ export default function Episodes({ episodes, onPlay }) {
     <section id="episodes" className="section">
       <div className="container">
         <div className="episodes__top">
-          <SectionHead kicker="Latest Episodes" title="Fresh talks," gold="every single week." />
+          <SectionHead {...head} />
           <div className="arrows" data-reveal>
             <button onClick={() => scroll(-1)} aria-label="Previous">←</button>
             <button onClick={() => scroll(1)} aria-label="Next">→</button>
@@ -48,7 +48,7 @@ export default function Episodes({ episodes, onPlay }) {
               <span className="ep__play">▶</span>
             </div>
             <div className="ep__body">
-              <span className="ep__cat">{e.category} · {e.duration}</span>
+              <span className="ep__cat">{e.category} · {e.duration}{(e.video || e.youtube) ? ' · ▶ Video' : ''}</span>
               <h3>{e.title}</h3>
               <p>with <b>{e.guest}</b></p>
             </div>

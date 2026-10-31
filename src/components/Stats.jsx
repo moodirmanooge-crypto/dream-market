@@ -21,19 +21,14 @@ function Counter({ to, suffix = '' }) {
   return <span ref={ref}>{n.toLocaleString()}{suffix}</span>
 }
 
-export default function Stats({ episodes, guests }) {
-  const data = [
-    { v: Math.max(episodes, 24), s: '+', l: 'Episodes' },
-    { v: Math.max(guests, 60), s: '+', l: 'Expert Guests' },
-    { v: 250, s: 'K', l: 'Monthly Listeners' },
-    { v: 18, s: '', l: 'Countries Reached' },
-  ]
+export default function Stats({ stats = [] }) {
+  if (!stats.length) return null
   return (
-    <section className="stats container">
-      {data.map((d, i) => (
-        <div className="stat" key={d.l} data-reveal style={{ transitionDelay: `${i * 0.1}s` }}>
-          <strong><Counter to={d.v} suffix={d.s} /></strong>
-          <span>{d.l}</span>
+    <section className="stats container" style={{ '--cols': Math.min(stats.length, 4) }}>
+      {stats.map((d, i) => (
+        <div className="stat" key={i} data-reveal style={{ transitionDelay: `${i * 0.1}s` }}>
+          <strong><Counter to={Number(d.value) || 0} suffix={d.suffix || ''} /></strong>
+          <span>{d.label}</span>
         </div>
       ))}
     </section>

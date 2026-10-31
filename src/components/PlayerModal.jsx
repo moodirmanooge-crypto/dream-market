@@ -22,8 +22,9 @@ export default function PlayerModal({ episode, onClose }) {
             transition={{ type: 'spring', damping: 24, stiffness: 260 }} onClick={(e) => e.stopPropagation()}>
             <button className="modal__close" onClick={onClose} aria-label="Close">✕</button>
             <div className="modal__video">
-              {id ? <iframe src={`https://www.youtube.com/embed/${id}?autoplay=1`} title={episode.title} allow="autoplay; encrypted-media; picture-in-picture" allowFullScreen />
-                : <><StudioScene hue={225} /><p className="modal__soon">Video coming soon — add a YouTube link from the admin panel.</p></>}
+              {episode.video ? <video src={episode.video} controls autoPlay playsInline poster={episode.image || undefined} />
+                : id ? <iframe src={`https://www.youtube.com/embed/${id}?autoplay=1`} title={episode.title} allow="autoplay; encrypted-media; picture-in-picture" allowFullScreen />
+                : <><StudioScene hue={225} /><p className="modal__soon">Video coming soon — stay tuned.</p></>}
             </div>
             <div className="modal__info">
               <span className="chip">EP {episode.number} · {episode.category}</span>
