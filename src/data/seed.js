@@ -79,6 +79,7 @@ export const seed = {
     { title: 'From Side Hustle to Startup', guest: 'Yusuf Ali', role: 'Serial Entrepreneur', category: 'Entrepreneurship', duration: '49 min', number: 19, image: '', video: '', youtube: '', description: 'The real story behind three companies and two failures.' },
   ],
   shows: [
+    { title: 'Forex Room', icon: '💹', image: '', description: 'Currency markets, trading psychology and risk management — live analysis with real traders.' },
     { title: 'Market Talk', icon: '📈', image: '', description: 'Weekly breakdown of global and regional markets.' },
     { title: 'Founder Stories', icon: '🚀', image: '', description: 'Raw, honest conversations with founders and CEOs.' },
     { title: 'Crypto Desk', icon: '🪙', image: '', description: 'Blockchain, digital assets and Web3 — explained clearly.' },

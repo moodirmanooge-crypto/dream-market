@@ -14,7 +14,7 @@ export default function Shows({ shows, head }) {
     <section id="shows" className="section section--alt">
       <div className="container">
         <SectionHead {...head} center />
-        <div className="shows">
+        <div className="shows" style={{ '--per': shows.length % 4 === 0 ? 4 : 3 }}>
           {shows.map((s, i) => (
             <article key={s.id || s.title} className={`show ${s.image ? 'show--img' : ''}`} data-reveal style={{ transitionDelay: `${i * 0.1}s` }} onMouseMove={tilt} onMouseLeave={reset}>
               {s.image && <div className="show__bg"><img src={s.image} alt="" /></div>}
