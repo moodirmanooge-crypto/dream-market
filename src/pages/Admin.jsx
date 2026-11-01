@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 import { collection, doc, getDoc, getDocs, onSnapshot, setDoc, writeBatch } from 'firebase/firestore'
 import { db } from '../firebase'
 import { COL, seed, defaultSettings } from '../data/seed'
-import { adminLogin, adminLogout, watchAdmin } from '../admin/adminAuth'
+import { adminLogin, adminLogout } from '../admin/adminAuth'
 import SettingsEditor from '../admin/SettingsEditor'
 import CollectionManager from '../admin/CollectionManager'
 import Inbox from '../admin/Inbox'
@@ -33,7 +33,8 @@ const NAV = [
 
 export default function Admin() {
   const [admin, setAdmin] = useState(undefined)
-  useEffect(() => watchAdmin(setAdmin), [])
+  // Always start at the login screen: any previous session is closed when /admin is opened
+  useEffect(() => { adminLogout().catch(() => {}).finally(() => setAdmin(null)) }, [])
   useEffect(() => { document.title = 'Admin | Dream Market Podcast' }, [])
   if (admin === undefined) return <div className="adm-center"><div className="adm-spin" /></div>
   if (!admin) return <Login onDone={setAdmin} />
