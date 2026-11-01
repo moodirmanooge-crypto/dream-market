@@ -14,7 +14,7 @@ const NAV = [
   { group: 'Bogga (Website content)' },
   { id: 'hero', icon: '🏠', label: 'Logo & Hero', keys: ['brand', 'hero'], help: 'Logo-ga, cinwaanka weyn, qoraalada, badhamada iyo sawirka hero-ga.' },
   { id: 'ticker', icon: '📈', label: 'Ticker & Stats', keys: ['ticker', 'stats'], help: 'Qoraalada socda iyo tirooyinka.' },
-  { id: 'sections', icon: '🔤', label: 'Cinwaanada qaybaha', keys: ['sections'], help: 'Kicker, cinwaan iyo erayga dahabka ah ee qayb kasta.' },
+  { id: 'sections', icon: '🔤', label: 'Cinwaanada qaybaha', keys: ['sections', 'categories'], help: 'Kicker, cinwaan iyo erayga dahabka ah ee qayb kasta + badhamada Categories (Forex, Finance…) ee Episodes.' },
   { id: 'about', icon: 'ℹ️', label: 'About', keys: ['about'], help: 'Qoraalka, sawirka, Mission/Vision/Values iyo timeline.' },
   { id: 'social', icon: '🔗', label: 'Social Media Links', keys: ['social'], help: 'Ku dheji link-ga buuxa (https://…) ee TikTok, Facebook, YouTube iyo kuwa kale. Kuwa madhan website-ka kama muuqdaan.' },
   { id: 'sponsor', icon: '💼', label: 'Sponsor Page', keys: ['sponsor', 'partnersCta'], help: 'Bogga /sponsor: followers, guulaha (Atlas), packages iyo qaybta Sponsor ee bogga hore.' },
@@ -191,4 +191,3 @@ function Dashboard({ go }) {
     </div>
   )
 }
-

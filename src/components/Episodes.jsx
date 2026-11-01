@@ -2,12 +2,17 @@ import { useMemo, useRef, useState } from 'react'
 import StudioScene from './StudioScene'
 import SectionHead from './SectionHead'
 
-export default function Episodes({ episodes, onPlay, head }) {
-  const cats = useMemo(() => ['All', ...new Set(episodes.map((e) => e.category).filter(Boolean))], [episodes])
+export default function Episodes({ episodes, onPlay, head, categories = [] }) {
+  const norm = (c = '') => c.trim().toLowerCase()
+  const cats = useMemo(() => {
+    const seen = new Set(); const out = ['All']
+    ;[...categories, ...episodes.map((e) => e.category)].forEach((c) => { if (c && !seen.has(norm(c))) { seen.add(norm(c)); out.push(c.trim()) } })
+    return out
+  }, [episodes, categories])
   const [cat, setCat] = useState('All')
   const track = useRef(null)
   const drag = useRef({ down: false, x: 0, left: 0, moved: false })
-  const list = cat === 'All' ? episodes : episodes.filter((e) => e.category === cat)
+  const list = cat === 'All' ? episodes : episodes.filter((e) => norm(e.category) === norm(cat))
 
   const scroll = (dir) => {
     const el = track.current
@@ -39,6 +44,7 @@ export default function Episodes({ episodes, onPlay, head }) {
       </div>
 
       <div className="ep-track" ref={track} onMouseDown={onDown} onMouseMove={onMove} onMouseUp={onUp} onMouseLeave={onUp}>
+        {list.length === 0 && <div className="ep-empty"><span>🎙</span><b>{cat} episodes are coming soon.</b><small>Stay tuned — new episodes every week.</small></div>}
         {list.map((e, i) => (
           <article className="ep" key={e.id || e.title} style={{ animationDelay: `${i * 0.07}s` }}
             onClick={() => !drag.current.moved && onPlay(e)}>

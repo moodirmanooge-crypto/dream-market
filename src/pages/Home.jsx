@@ -46,7 +46,7 @@ export default function Home() {
         <Ticker ticker={s.ticker} />
         <Stats stats={s.stats} />
         <Featured episode={featured} onPlay={setPlaying} head={sec.featured} />
-        <Episodes episodes={episodes} onPlay={setPlaying} head={sec.episodes} />
+        <Episodes episodes={episodes} onPlay={setPlaying} head={sec.episodes} categories={s.categories} />
         {shows.length > 0 && <Shows shows={shows} head={sec.shows} />}
         {guests.length > 0 && <Guests guests={guests} head={sec.guests} />}
         <About about={s.about} head={sec.about} />

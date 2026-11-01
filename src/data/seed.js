@@ -24,6 +24,8 @@ export const defaultSettings = {
       { label: 'TECH', value: '▲ 5.7%' }, { label: 'STARTUPS', value: '▲ 19.2%' }, { label: 'GUESTS', value: '+60' },
     ],
   },
+  // Episode filter buttons (order = order on the website). Admin → Cinwaanada qaybaha → Categories
+  categories: ['Forex', 'Finance', 'Business', 'Crypto', 'Technology', 'Markets', 'Entrepreneurship'],
   stats: [
     { value: 24, suffix: '+', label: 'Episodes' },
     { value: 60, suffix: '+', label: 'Expert Guests' },
@@ -115,6 +117,7 @@ export const defaultSettings = {
 
 export const seed = {
   episodes: [
+    { title: 'Trading Forex Like a Professional', guest: 'Abdirahman Yusuf', role: 'Forex Trader & Educator', category: 'Forex', duration: '55 min', number: 25, showInHero: true, image: '', video: '', youtube: '', description: 'Risk management, discipline and the real path to getting funded by a prop firm.' },
     { title: 'The Future of Money in East Africa', guest: 'Amina Warsame', role: 'Fintech Founder', category: 'Finance', duration: '58 min', number: 24, featured: true, showInHero: true, image: '', video: '', youtube: '', description: 'How mobile money, digital banks and stablecoins are rewriting the way Somalis and East Africans save, send and invest.' },
     { title: 'Building a Brand From Mogadishu to the World', guest: 'Hassan Abdi', role: 'CEO, Horizon Group', category: 'Business', duration: '46 min', number: 23, showInHero: true, image: '', video: '', youtube: '', description: 'Lessons on scaling a local company into an international brand.' },
     { title: 'Crypto Without the Hype', guest: 'Layla Nur', role: 'Blockchain Analyst', category: 'Crypto', duration: '52 min', number: 22, showInHero: true, image: '', video: '', youtube: '', description: 'What is real, what is noise, and how to protect yourself.' },
