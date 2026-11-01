@@ -2,11 +2,12 @@ import { useEffect, useRef, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import StudioScene from './StudioScene'
 import TextRotator from './TextRotator'
+import SocialLinks from './SocialLinks'
 
 const HUES = [222, 210, 260, 195, 235, 245]
 const DURATION = 6000
 
-export default function Hero({ episodes, onPlay, hero }) {
+export default function Hero({ episodes, onPlay, hero, social }) {
   const picked = episodes.filter((e) => e.showInHero)
   const slides = (picked.length ? picked : episodes).slice(0, 8)
   const [idx, setIdx] = useState(0)
@@ -73,6 +74,9 @@ export default function Hero({ episodes, onPlay, hero }) {
           <motion.div className="hero__platforms" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 3.3 }}>
             <span>{hero.platformsLabel}</span>
             {(hero.platforms || []).map((p) => <b key={p}>{p}</b>)}
+          </motion.div>
+          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 3.5 }}>
+            <SocialLinks social={social} variant="hero" label="Follow us" />
           </motion.div>
         </div>
 

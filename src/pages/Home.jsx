@@ -14,6 +14,9 @@ import About from '../components/About'
 import Contact from '../components/Contact'
 import Footer from '../components/Footer'
 import PlayerModal from '../components/PlayerModal'
+import SponsorCTA from '../components/SponsorCTA'
+import LeadMagnet from '../components/LeadMagnet'
+import SocialLinks from '../components/SocialLinks'
 import { useCollection } from '../hooks/useCollection'
 import { useSettings } from '../hooks/useSettings'
 import { useReveal } from '../hooks/useReveal'
@@ -36,9 +39,10 @@ export default function Home() {
       <Loader text={s.brand.logoText} tag={s.hero.title} />
       <Cursor />
       <div className="noise" aria-hidden />
-      <Navbar brand={s.brand} />
+      <Navbar brand={s.brand} sponsorLabel={s.sponsor.navButton} />
+      <SocialLinks social={s.social} variant="rail" />
       <main>
-        <Hero episodes={episodes} onPlay={setPlaying} hero={s.hero} />
+        <Hero episodes={episodes} onPlay={setPlaying} hero={s.hero} social={s.social} />
         <Ticker ticker={s.ticker} />
         <Stats stats={s.stats} />
         <Featured episode={featured} onPlay={setPlaying} head={sec.featured} />
@@ -46,8 +50,10 @@ export default function Home() {
         {shows.length > 0 && <Shows shows={shows} head={sec.shows} />}
         {guests.length > 0 && <Guests guests={guests} head={sec.guests} />}
         <About about={s.about} head={sec.about} />
+        <SponsorCTA sponsor={s.sponsor} />
         {partners.length > 0 && <Partners partners={partners} head={sec.partners} cta={s.partnersCta} />}
-        <Contact contact={s.contact} head={sec.contact} />
+        <LeadMagnet nl={s.newsletter} />
+        <Contact contact={s.contact} head={sec.contact} social={s.social} />
       </main>
       <Footer footer={s.footer} social={s.social} brand={s.brand} />
       <PlayerModal episode={playing} onClose={() => setPlaying(null)} />

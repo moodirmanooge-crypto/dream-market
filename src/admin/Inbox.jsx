@@ -14,14 +14,14 @@ export default function Inbox({ name }) {
 
   const del = (r) => confirm('Tirtir?') && deleteDoc(doc(db, COL[name], r.id))
   const csv = () => {
-    const blob = new Blob(['email,date\n' + rows.map((r) => `${r.email},${when(r.createdAt)}`).join('\n')], { type: 'text/csv' })
+    const blob = new Blob(['\ufeffname,email,source,date\n' + rows.map((r) => [r.name || '', r.email, r.source || 'newsletter', when(r.createdAt)].map((v) => `"${String(v).replace(/"/g, '""')}"`).join(',')).join('\n')], { type: 'text/csv' })
     const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'subscribers.csv'; a.click()
   }
 
   return (
     <div>
       <div className="adm-pagehead">
-        <div><h2>{name === 'messages' ? 'Fariimaha (Contact)' : 'Subscribers'} <small>({rows.length})</small></h2></div>
+        <div><h2>{name === 'messages' ? 'Fariimaha (Contact & Sponsors)' : 'Email List (Leads)'} <small>({rows.length})</small></h2>{name === 'subscribers' && <p>Liiskan ardayda iyo dhagaystayaasha ah u tus shirkadaha — Export CSV.</p>}</div>
         {name === 'subscribers' && rows.length > 0 && <button className="btn btn--ghost" onClick={csv}>⬇ Export CSV</button>}
       </div>
       {err && <p className="err">{err}</p>}
@@ -35,7 +35,7 @@ export default function Inbox({ name }) {
             <div className="adm-item__btns"><a className="btn btn--ghost btn--sm" href={`mailto:${r.email}?subject=Re: ${r.type}`}>↩ Jawaab</a><button className="danger" onClick={(e) => { e.stopPropagation(); del(r) }}>Tirtir</button></div>
           </div>
         ) : (
-          <div key={r.id} className="adm-item"><div className="adm-item__info"><b>{r.email}</b><small>{when(r.createdAt)}</small></div>
+          <div key={r.id} className="adm-item"><div className="adm-item__info"><b>{r.name || r.email}</b><small>{r.name ? r.email + ' · ' : ''}{r.source === 'free-course' ? '🎓 Free course · ' : ''}{when(r.createdAt)}</small></div>
             <div className="adm-item__btns"><button className="danger" onClick={() => del(r)}>✕</button></div></div>
         ))}
       </div>

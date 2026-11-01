@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom'
 import SectionHead from './SectionHead'
 
 export default function Partners({ partners, head, cta }) {
@@ -17,7 +18,7 @@ export default function Partners({ partners, head, cta }) {
       </div>
       <div className="container partners-cta" data-reveal>
         <p>{cta.text}</p>
-        {cta.button && <a className="btn btn--ghost" href="#contact">{cta.button}</a>}
+        {cta.button && <Link className="btn btn--gold" to="/sponsor">{cta.button}</Link>}
       </div>
     </section>
   )

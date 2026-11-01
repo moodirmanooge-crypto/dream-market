@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 
-function Counter({ to, suffix = '' }) {
+export function Counter({ to, suffix = '' }) {
   const [n, setN] = useState(0)
   const ref = useRef(null)
   useEffect(() => {

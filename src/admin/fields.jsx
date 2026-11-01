@@ -9,7 +9,7 @@ export function inferType(key, value) {
   if (typeof value === 'boolean') return 'checkbox'
   if (typeof value === 'number') return 'number'
   if (k === 'text' || k === 'description' || (typeof value === 'string' && value.length > 70)) return 'textarea'
-  if (k.includes('link') || k.includes('url') || ['youtube', 'spotify', 'apple', 'instagram', 'tiktok', 'linkedin', 'x', 'facebook'].includes(k)) return 'url'
+  if (k.includes('link') || k.includes('url') || ['youtube', 'spotify', 'apple', 'instagram', 'tiktok', 'linkedin', 'x', 'facebook', 'telegram', 'whatsapp'].includes(k)) return 'url'
   return 'text'
 }
 

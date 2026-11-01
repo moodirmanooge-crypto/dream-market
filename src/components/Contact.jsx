@@ -3,24 +3,18 @@ import { addDoc, collection, serverTimestamp } from 'firebase/firestore'
 import { db } from '../firebase'
 import { COL } from '../data/seed'
 import SectionHead from './SectionHead'
+import SocialLinks from './SocialLinks'
 
-export default function Contact({ contact, head }) {
+export default function Contact({ contact, head, social }) {
   const subjects = contact.subjects?.length ? contact.subjects : ['General']
   const blank = { name: '', email: '', type: subjects[0], message: '' }
   const [form, setForm] = useState(blank)
   const [state, setState] = useState('idle')
-  const [email, setEmail] = useState('')
-  const [sub, setSub] = useState('idle')
 
   const send = async (e) => {
     e.preventDefault(); setState('sending')
     try { await addDoc(collection(db, COL.messages), { ...form, read: false, createdAt: serverTimestamp() }); setState('sent'); setForm(blank) }
     catch (err) { console.error(err); setState('error') }
-  }
-  const subscribe = async (e) => {
-    e.preventDefault(); setSub('sending')
-    try { await addDoc(collection(db, COL.subscribers), { email, createdAt: serverTimestamp() }); setSub('sent'); setEmail('') }
-    catch (err) { console.error(err); setSub('error') }
   }
   const set = (k) => (e) => setForm({ ...form, [k]: e.target.value })
 
@@ -34,15 +28,7 @@ export default function Contact({ contact, head }) {
             {contact.phone && <li><span>☎</span><a href={`tel:${contact.phone.replace(/\s/g, '')}`}>{contact.phone}</a></li>}
             {contact.location && <li><span>⌖</span>{contact.location}</li>}
           </ul>
-          <form className="newsletter" onSubmit={subscribe} data-reveal>
-            <label>{contact.newsletterLabel}</label>
-            <div>
-              <input type="email" required placeholder="your@email.com" value={email} onChange={(e) => setEmail(e.target.value)} />
-              <button className="btn btn--gold" disabled={sub === 'sending'}>{sub === 'sending' ? '…' : 'Subscribe'}</button>
-            </div>
-            {sub === 'sent' && <small className="ok">✓ You're subscribed!</small>}
-            {sub === 'error' && <small className="err">Something went wrong. Try again.</small>}
-          </form>
+          <div data-reveal><SocialLinks social={social} variant="pills" /></div>
         </div>
 
         <form className="form" onSubmit={send} data-reveal>

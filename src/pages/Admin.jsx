@@ -16,7 +16,10 @@ const NAV = [
   { id: 'ticker', icon: '📈', label: 'Ticker & Stats', keys: ['ticker', 'stats'], help: 'Qoraalada socda iyo tirooyinka.' },
   { id: 'sections', icon: '🔤', label: 'Cinwaanada qaybaha', keys: ['sections'], help: 'Kicker, cinwaan iyo erayga dahabka ah ee qayb kasta.' },
   { id: 'about', icon: 'ℹ️', label: 'About', keys: ['about'], help: 'Qoraalka, sawirka, Mission/Vision/Values iyo timeline.' },
-  { id: 'contact', icon: '☎️', label: 'Contact & Social', keys: ['contact', 'social', 'partnersCta'], help: 'Email, telefoon, social media links iyo partners CTA.' },
+  { id: 'social', icon: '🔗', label: 'Social Media Links', keys: ['social'], help: 'Ku dheji link-ga buuxa (https://…) ee TikTok, Facebook, YouTube iyo kuwa kale. Kuwa madhan website-ka kama muuqdaan.' },
+  { id: 'sponsor', icon: '💼', label: 'Sponsor Page', keys: ['sponsor', 'partnersCta'], help: 'Bogga /sponsor: followers, guulaha (Atlas), packages iyo qaybta Sponsor ee bogga hore.' },
+  { id: 'newsletter', icon: '🎓', label: 'Newsletter / Free Course', keys: ['newsletter'], help: 'Sanduuqa "Join Our Newsletter" ee lagu ururiyo magaca iyo email-ka ardayda.' },
+  { id: 'contact', icon: '☎️', label: 'Contact', keys: ['contact'], help: 'Email, telefoon iyo goobta.' },
   { id: 'footer', icon: '⬇️', label: 'Footer', keys: ['footer'] },
   { group: 'Xogta (Content)' },
   { id: 'episodes', icon: '🎙', label: 'Episodes', col: true },
@@ -25,7 +28,7 @@ const NAV = [
   { id: 'partners', icon: '🤝', label: 'Partners', col: true },
   { group: 'Sanduuqa' },
   { id: 'messages', icon: '✉️', label: 'Fariimaha', inbox: true },
-  { id: 'subscribers', icon: '📬', label: 'Subscribers', inbox: true },
+  { id: 'subscribers', icon: '📬', label: 'Email List (Leads)', inbox: true },
 ]
 
 export default function Admin() {
@@ -155,7 +158,7 @@ function Dashboard({ go }) {
 
   const cards = [
     ['episodes', '🎙', 'Episodes'], ['shows', '📺', 'Shows'], ['guests', '👤', 'Guests'],
-    ['partners', '🤝', 'Partners'], ['messages', '✉️', 'Fariimo'], ['subscribers', '📬', 'Subscribers'],
+    ['partners', '🤝', 'Partners'], ['messages', '✉️', 'Fariimo'], ['subscribers', '📬', 'Email List'],
   ]
   return (
     <div>
@@ -174,7 +177,8 @@ function Dashboard({ go }) {
           <button onClick={() => go('episodes')}>+ Episode cusub</button>
           <button onClick={() => go('hero')}>Beddel Hero-ga</button>
           <button onClick={() => go('guests')}>+ Marti cusub</button>
-          <button onClick={() => go('contact')}>Social links</button>
+          <button onClick={() => go('social')}>Social links</button>
+          <button onClick={() => go('sponsor')}>Sponsor page</button>
         </div>
       </div>
       <div className="adm-card">
@@ -187,3 +191,4 @@ function Dashboard({ go }) {
     </div>
   )
 }
+

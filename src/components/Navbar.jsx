@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react'
+import { Link } from 'react-router-dom'
 import Brand from './Brand'
 
 const links = ['Home', 'About', 'Shows', 'Episodes', 'Guests', 'Partners', 'Contact']
 
-export default function Navbar({ brand }) {
+export default function Navbar({ brand, sponsorLabel = 'Sponsor Us' }) {
   const [open, setOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
   const [progress, setProgress] = useState(0)
@@ -41,7 +42,7 @@ export default function Navbar({ brand }) {
               <button key={l} className={active === l.toLowerCase() ? 'is-active' : ''} onClick={() => go(l.toLowerCase())}>{l}</button>
             ))}
           </nav>
-          <button className="btn btn--gold btn--sm nav__cta" onClick={() => go('episodes')}>{brand.navButton}</button>
+          <Link className="btn btn--gold btn--sm nav__cta" to="/sponsor">{sponsorLabel}</Link>
           <button className={`burger ${open ? 'is-open' : ''}`} onClick={() => setOpen(!open)} aria-label="Menu">
             <span /><span /><span />
           </button>
@@ -56,6 +57,7 @@ export default function Navbar({ brand }) {
             <small>0{i + 1}</small>{l}
           </button>
         ))}
+        <Link to="/sponsor" className="btn btn--gold btn--lg mobile-menu__cta" style={{ transitionDelay: open ? '.55s' : '0s' }}>{sponsorLabel} →</Link>
         <p className="mobile-menu__foot">{brand.name}</p>
       </div>
     </>
