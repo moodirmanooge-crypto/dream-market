@@ -71,20 +71,21 @@ export const defaultSettings = {
     pageGold: 'Dream Market Podcast.',
     pageText: 'We connect prop firms, brokers and fintech brands with an engaged audience of traders who take action. Here is what we bring to the table.',
     audience: [
-      { platform: 'TikTok', followers: '740K', note: 'Followers' },
+      { platform: 'TikTok', followers: '764K', note: 'Followers' },
       { platform: 'Facebook', followers: '14K', note: 'Page followers' },
       { platform: 'X (Twitter)', followers: '10K', note: 'Followers' },
       { platform: 'YouTube', followers: '', note: 'Subscribers' },
       { platform: 'Instagram', followers: '', note: 'Followers' },
     ],
     stats: [
-      { value: 764, suffix: 'K+', label: 'Total followers' },
-      { value: 740, suffix: 'K', label: 'TikTok followers' },
+      { value: 764, suffix: 'K', label: 'TikTok followers' },
+      { value: 14, suffix: 'K', label: 'Facebook page followers' },
+      { value: 10, suffix: 'K', label: 'X (Twitter) followers' },
       { value: 40, suffix: '+', label: 'Traders referred to Atlas' },
     ],
     achievements: [
       { title: '40 traders sent to Atlas', text: 'Our community joined Atlas through Dream Market — proof that our audience converts, not just watches.' },
-      { title: '764K+ followers', text: '740K on TikTok, 14K on Facebook and 10K on X — one of the largest Somali-language finance and trading audiences on social media.' },
+      { title: '764K on TikTok', text: 'Plus 14K on Facebook and 10K on X — one of the largest Somali-language finance and trading audiences on social media.' },
     ],
     packages: [
       { title: 'Episode Sponsor', text: 'Your brand presented at the start and end of a full episode, with links in every description.' },

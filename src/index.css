@@ -638,7 +638,7 @@ button.danger:hover { background: #ff6b6b !important; color: #000 !important; }
 .sponsor-cta__copy > p:not(.kicker) { color: var(--muted); font-size: 1.08rem; margin: 0 0 30px; max-width: 560px; }
 .sponsor-cta__btns { display: flex; flex-wrap: wrap; gap: 14px; }
 .sponsor-cta__btns .btn--gold { animation: ring 2.4s infinite; }
-.sponsor-cta__stats { display: grid; gap: 16px; }
+.sponsor-cta__stats { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
 .sponsor-cta__stat { padding: 26px 28px; border-radius: 20px; border: 1px solid var(--line); background: rgba(10,10,10,.6); backdrop-filter: blur(6px); transition: transform .4s var(--ease), border-color .3s; }
 .sponsor-cta__stat:hover { transform: translateX(-6px); border-color: var(--gold); }
 .sponsor-cta__stat strong { display: block; font-family: var(--display); font-size: clamp(2.6rem, 5vw, 3.8rem); line-height: 1; color: var(--gold); }
