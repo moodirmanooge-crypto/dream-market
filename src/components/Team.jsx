@@ -35,6 +35,7 @@ export default function Team({ team, head }) {
               <h3>{m.name}</h3>
               <span className="tm-role">{m.role}</span>
               {m.focus && <p className="tm-focus">{m.focus}</p>}
+              {m.bio && <p className="tm-cardbio">{m.bio}</p>}
             </article>
           ))}
         </div>

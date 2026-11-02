@@ -17,7 +17,7 @@ const iconKey = (p = "") => { const k = p.toLowerCase(); return k.startsWith("ap
 export default function Sponsor() {
   const s = useSettings()
   const sp = s.sponsor
-  const partners = useCollection('partners')
+  const partners = useCollection('partners', s.seeded)
   const { hash } = useLocation()
   const blank = { company: '', name: '', email: '', website: '', message: '' }
   const [f, setF] = useState(blank)

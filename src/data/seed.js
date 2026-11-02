@@ -2,6 +2,7 @@
 // Admin → "Seed demo data" uploads all of this in one click.
 
 export const defaultSettings = {
+  seeded: {}, // set by the admin: which lists are managed in Firestore
   brand: { logoText: 'DMP', name: 'DREAM MARKET PODCAST', logoImage: '', navButton: 'Listen Now' },
   hero: {
     eyebrow: 'New episode every week',

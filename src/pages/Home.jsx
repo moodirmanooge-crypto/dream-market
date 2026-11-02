@@ -26,11 +26,11 @@ import { useTrack } from '../hooks/useTrack'
 
 export default function Home() {
   const s = useSettings()
-  const episodes = useCollection('episodes')
-  const shows = useCollection('shows')
-  const guests = useCollection('guests')
-  const partners = useCollection('partners')
-  const team = useCollection('team')
+  const episodes = useCollection('episodes', s.seeded)
+  const shows = useCollection('shows', s.seeded)
+  const guests = useCollection('guests', s.seeded)
+  const partners = useCollection('partners', s.seeded)
+  const team = useCollection('team', s.seeded)
   const [playing, setPlaying] = useState(null)
   useTrack('home')
   useReveal([episodes, shows, guests, partners, team, s])

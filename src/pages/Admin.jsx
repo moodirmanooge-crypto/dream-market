@@ -132,13 +132,15 @@ function Dashboard({ go }) {
     if (!confirm('Xogta tusaalaha ah ku shub Firestore? (Kaliya qaybaha madhan ayaa la buuxinayaa)')) return
     setBusy(true); setMsg('')
     try {
-      const b = writeBatch(db); let n = 0
+      const b = writeBatch(db); let n = 0; const flags = {}
       for (const [name, list] of Object.entries(seed)) {
         const existing = await getDocs(collection(db, COL[name]))
         if (existing.empty) list.forEach((it) => { b.set(doc(collection(db, COL[name])), it); n++ })
+        flags[name] = true
       }
       const site = await getDoc(doc(db, COL.settings, 'site'))
-      if (!site.exists()) { b.set(doc(db, COL.settings, 'site'), defaultSettings); n++ }
+      if (!site.exists()) { b.set(doc(db, COL.settings, 'site'), { ...defaultSettings, seeded: flags }); n++ }
+      else b.set(doc(db, COL.settings, 'site'), { seeded: flags }, { merge: true })
       await b.commit()
       setMsg(n ? `✓ ${n} shay ayaa la shubay.` : 'Wax madhan ma jiro — xogtu horay ayay u jirtay.')
     } catch (e) { setMsg(e.message) }

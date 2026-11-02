@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
-import { addDoc, collection, deleteDoc, doc, onSnapshot, serverTimestamp, updateDoc, writeBatch } from 'firebase/firestore'
+import { addDoc, collection, deleteDoc, doc, getDoc, onSnapshot, serverTimestamp, setDoc, updateDoc, writeBatch } from 'firebase/firestore'
 import { db } from '../firebase'
-import { COL } from '../data/seed'
+import { COL, seed } from '../data/seed'
 import { byOrder } from '../hooks/useCollection'
 import { Field } from './fields'
 
@@ -17,9 +17,11 @@ export const SCHEMAS = {
   },
   shows: { title: 'Shows', single: 'Show', fields: [['title', 'text', 'Title'], ['icon', 'text', 'Icon (emoji)'], ['image', 'image', 'Background image'], ['description', 'textarea', 'Description'], ['link', 'url', 'Link'], ['hidden', 'checkbox', '🙈 Qari']] },
   guests: { title: 'Guests', single: 'Guest', fields: [['name', 'text', 'Name'], ['role', 'text', 'Role / company'], ['image', 'image', 'Photo'], ['hidden', 'checkbox', '🙈 Qari']] },
-  team: { title: 'Team', single: 'Team member', fields: [['name', 'text', 'Name'], ['role', 'text', 'Role / Title'], ['focus', 'text', 'Focus', 'tusaale: Filming & Production'], ['image', 'image', 'Photo'], ['bio', 'textarea', 'Short bio', 'founder-ka ayaa muujiya'], ['founder', 'checkbox', '👑 Founder (kaarka weyn)'], ['hidden', 'checkbox', '🙈 Qari']] },
+  team: { title: 'Team', single: 'Team member', fields: [['name', 'text', 'Name'], ['role', 'text', 'Role / Title'], ['focus', 'text', 'Focus', 'tusaale: Filming & Production'], ['image', 'image', 'Photo'], ['bio', 'textarea', 'Qoraal / Bio', 'ikhtiyaari — wixii aad qorto ayaa website-ka ka muuqda'], ['founder', 'checkbox', '👑 Founder — kaarka weyn ee sare'], ['hidden', 'checkbox', '🙈 Qari']] },
   partners: { title: 'Partners', single: 'Partner', fields: [['name', 'text', 'Name'], ['logo', 'image', 'Logo'], ['link', 'url', 'Website link'], ['hidden', 'checkbox', '🙈 Qari']] },
 }
+
+const importing = new Set() // guards against double import (React StrictMode runs effects twice)
 
 export default function CollectionManager({ name }) {
   const schema = SCHEMAS[name]
@@ -30,7 +32,25 @@ export default function CollectionManager({ name }) {
 
   useEffect(() => {
     setForm(null)
-    return onSnapshot(collection(db, COL[name]), (s) => setRows(s.docs.map((d) => ({ id: d.id, ...d.data() })).sort(byOrder)), (e) => setErr(e.message))
+    let checked = false
+    return onSnapshot(collection(db, COL[name]), async (s) => {
+      setRows(s.docs.map((d) => ({ id: d.id, ...d.data() })).sort(byOrder))
+      if (checked || importing.has(name)) return
+      checked = true
+      importing.add(name)
+      // First time this list is opened: copy what the website currently shows into Firestore,
+      // so the admin can edit / delete those exact items.
+      try {
+        const site = await getDoc(doc(db, COL.settings, 'site'))
+        if (site.data()?.seeded?.[name]) return
+        if (s.empty && seed[name]?.length) {
+          const b = writeBatch(db)
+          seed[name].forEach((it) => b.set(doc(collection(db, COL[name])), { ...it, createdAt: serverTimestamp() }))
+          await b.commit()
+        }
+        await setDoc(doc(db, COL.settings, 'site'), { seeded: { [name]: true } }, { merge: true })
+      } catch (e) { setErr(e.message) }
+    }, (e) => setErr(e.message))
   }, [name])
 
   const save = async (e) => {
