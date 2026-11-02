@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import Brand from './Brand'
 
-const links = ['Home', 'About', 'Shows', 'Episodes', 'Guests', 'Partners', 'Contact']
+const links = ['Home', 'About', 'Team', 'Shows', 'Episodes', 'Guests', 'Contact']
 
 export default function Navbar({ brand, sponsorLabel = 'Sponsor Us' }) {
   const [open, setOpen] = useState(false)

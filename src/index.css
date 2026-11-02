@@ -776,3 +776,47 @@ button.danger:hover { background: #ff6b6b !important; color: #000 !important; }
   .an-row { grid-template-columns: 96px 1fr 44px 34px; font-size: .82rem; }
   .an-dash strong { font-size: 1.8rem; }
 }
+
+/* ============ Team ============ */
+.tm-photo { position: relative; width: 150px; height: 150px; margin: 0 auto 20px; border-radius: 50%; overflow: hidden; display: grid; place-items: center;
+  background: radial-gradient(circle at 30% 25%, #2a2a2a, #0c0c0c); border: 2px solid var(--line); transition: transform .5s var(--ease), border-color .4s; }
+.tm-photo img { width: 100%; height: 100%; object-fit: cover; transition: transform .8s var(--ease); }
+.tm-photo span { font-family: var(--display); font-size: 2.8rem; font-weight: 800; color: var(--gold); }
+.tm-photo__ring { position: absolute; inset: 5px; border-radius: 50%; border: 1px dashed rgba(212,175,55,.5); animation: spin 22s linear infinite; pointer-events: none; }
+.tm-photo--big { width: 260px; height: 260px; margin: 0; flex-shrink: 0; border-color: var(--gold); box-shadow: 0 0 0 10px rgba(212,175,55,.06), 0 30px 70px -25px rgba(212,175,55,.5); }
+.tm-founder { display: flex; align-items: center; gap: clamp(28px, 5vw, 60px); padding: clamp(26px, 4vw, 48px); margin-bottom: 26px; border-radius: 28px; border: 1px solid var(--line);
+  background: radial-gradient(ellipse at 0% 50%, rgba(212,175,55,.14), transparent 55%), var(--card); }
+.tm-founder:hover .tm-photo img { transform: scale(1.06); }
+.tm-founder h3 { font-size: clamp(2rem, 4vw, 3rem); letter-spacing: -.03em; margin: 14px 0 4px; line-height: 1.05; }
+.tm-founder .tm-focus { font-size: 1rem; }
+.tm-bio { color: #d6d3cb; margin: 16px 0 0; max-width: 560px; font-size: 1.04rem; }
+.tm-grid { display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; }
+.tm-card { flex: 0 0 calc((100% - 40px) / 3); text-align: center; padding: 34px 22px 30px; border-radius: 22px; border: 1px solid var(--line-soft); background: var(--card);
+  transition: transform .5s var(--ease), border-color .4s, box-shadow .5s; }
+.tm-card:hover { transform: translateY(-8px); border-color: var(--line); box-shadow: 0 30px 60px -28px rgba(212,175,55,.4); }
+.tm-card:hover .tm-photo { transform: scale(1.05); border-color: var(--gold); }
+.tm-card h3 { margin: 0 0 8px; font-size: 1.25rem; }
+.tm-role { display: inline-block; padding: 5px 12px; border-radius: 999px; font-size: .74rem; font-weight: 800; letter-spacing: .06em; color: var(--gold); background: rgba(212,175,55,.1); border: 1px solid var(--line); }
+.tm-focus { color: var(--muted); margin: 12px 0 0; font-size: .9rem; }
+
+/* ============ Public visitor counter ============ */
+.vc { animation: cardIn .9s var(--ease) both; margin-top: 26px; padding: 22px 26px; border-radius: 20px; border: 1px solid var(--line-soft); background: linear-gradient(90deg, rgba(61,220,132,.06), transparent 40%), #0b0b0b; display: flex; align-items: center; gap: 30px; }
+.vc__head { display: flex; align-items: center; gap: 10px; font-size: .74rem; font-weight: 800; letter-spacing: .18em; text-transform: uppercase; color: #3ddc84; white-space: nowrap; }
+.vc__dot { background: #3ddc84; box-shadow: 0 0 0 0 rgba(61,220,132,.7); animation: pulseg 1.8s infinite; }
+@keyframes pulseg { 70% { box-shadow: 0 0 0 10px rgba(61,220,132,0); } 100% { box-shadow: 0 0 0 0 rgba(61,220,132,0); } }
+.vc__grid { flex: 1; display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+.vc__item strong { display: block; font-family: var(--display); font-size: clamp(1.5rem, 3vw, 2.1rem); line-height: 1.1; color: var(--white); }
+.vc__item > span { color: var(--muted); font-size: .8rem; font-weight: 600; }
+
+@media (max-width: 900px) {
+  .tm-founder { flex-direction: column; text-align: center; }
+  .tm-founder .tm-bio { margin-inline: auto; }
+  .tm-photo--big { width: 210px; height: 210px; }
+  .tm-card { flex-basis: calc((100% - 20px) / 2); }
+  .vc { flex-direction: column; align-items: flex-start; gap: 16px; }
+  .vc__grid { width: 100%; grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 600px) {
+  .tm-card { flex-basis: 100%; }
+  .tm-photo { width: 130px; height: 130px; }
+}

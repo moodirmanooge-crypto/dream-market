@@ -17,6 +17,7 @@ export const SCHEMAS = {
   },
   shows: { title: 'Shows', single: 'Show', fields: [['title', 'text', 'Title'], ['icon', 'text', 'Icon (emoji)'], ['image', 'image', 'Background image'], ['description', 'textarea', 'Description'], ['link', 'url', 'Link'], ['hidden', 'checkbox', '🙈 Qari']] },
   guests: { title: 'Guests', single: 'Guest', fields: [['name', 'text', 'Name'], ['role', 'text', 'Role / company'], ['image', 'image', 'Photo'], ['hidden', 'checkbox', '🙈 Qari']] },
+  team: { title: 'Team', single: 'Team member', fields: [['name', 'text', 'Name'], ['role', 'text', 'Role / Title'], ['focus', 'text', 'Focus', 'tusaale: Filming & Production'], ['image', 'image', 'Photo'], ['bio', 'textarea', 'Short bio', 'founder-ka ayaa muujiya'], ['founder', 'checkbox', '👑 Founder (kaarka weyn)'], ['hidden', 'checkbox', '🙈 Qari']] },
   partners: { title: 'Partners', single: 'Partner', fields: [['name', 'text', 'Name'], ['logo', 'image', 'Logo'], ['link', 'url', 'Website link'], ['hidden', 'checkbox', '🙈 Qari']] },
 }
 
@@ -102,9 +103,9 @@ export default function CollectionManager({ name }) {
             <div className="adm-item__thumb">{thumb(r) ? <img src={thumb(r)} alt="" /> : <span>{r.icon || (r.title || r.name || '?')[0]}</span>}</div>
             <div className="adm-item__info">
               <b>{r.number ? `#${r.number} · ` : ''}{r.title || r.name}</b>
-              <small>{[r.guest, r.role, r.category, r.duration].filter(Boolean).join(' · ') || r.description || r.link || ''}</small>
+              <small>{[r.guest, r.role, r.focus, r.category, r.duration].filter(Boolean).join(' · ') || r.description || r.link || ''}</small>
               <div className="adm-tags">
-                {r.featured && <em>⭐ Featured</em>}{r.showInHero && <em>🎞 Hero</em>}{(r.video || r.youtube) && <em>▶ Video</em>}{r.hidden && <em className="off">🙈 Qarsoon</em>}
+                {r.featured && <em>⭐ Featured</em>}{r.founder && <em>👑 Founder</em>}{r.showInHero && <em>🎞 Hero</em>}{(r.video || r.youtube) && <em>▶ Video</em>}{r.hidden && <em className="off">🙈 Qarsoon</em>}
               </div>
             </div>
             <div className="adm-item__btns">

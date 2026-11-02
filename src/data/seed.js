@@ -38,6 +38,7 @@ export const defaultSettings = {
     shows: { kicker: 'Our Shows', title: 'Programs built for', gold: 'ambitious minds.', text: 'Business, finance, markets and technology — each show explores a different side of the ideas and people shaping tomorrow.' },
     guests: { kicker: 'Meet Our Guests', title: 'CEOs, founders &', gold: 'investors.', text: 'The people shaping business and finance — in their own words.' },
     about: { kicker: 'Our Story', title: 'More than a podcast —', gold: 'a global media platform.', text: 'Discover the people, ideas and businesses shaping the future of finance, technology and entrepreneurship.' },
+    team: { kicker: 'Meet Our Team', title: 'The People Behind', gold: 'the Conversations.', text: 'At Dream Market Podcast, our team is driven by a shared passion for business, finance, technology and meaningful conversations. We bring together creativity, expertise and a global vision to connect people, share knowledge and inspire new opportunities. Meet the team behind Dream Market Podcast.' },
     partners: { kicker: 'Partners & Sponsors', title: 'Trusted by', gold: 'brands that build.' },
     contact: { kicker: 'Contact', title: "Let's build something", gold: 'together.', text: 'Be a guest, sponsor an episode or partner with Dream Market.' },
   },
@@ -58,6 +59,7 @@ export const defaultSettings = {
       { year: '2026', text: 'Going international' },
     ],
   },
+  visitors: { show: true, label: 'Live Website Traffic', today: 'Visitors Today', visitsToday: 'Visits Today', total: 'Total Visits', totalVisitors: 'Total Visitors' },
   partnersCta: { text: "Want your brand in front of the region's sharpest business audience?", button: 'Partner With Us' },
   sponsor: {
     navButton: 'Sponsor Us',
@@ -143,6 +145,14 @@ export const seed = {
     { name: 'Sagal Ahmed', role: 'Portfolio Manager', image: '' },
     { name: 'Yusuf Ali', role: 'Serial Entrepreneur', image: '' },
   ],
+  team: [
+    { name: 'Shirhan Dahir', role: 'Founder & Owner', focus: 'Vision, Leadership & Strategy', image: '/team/shirhan-dahir.jpg', founder: true, bio: 'Shirhan founded Dream Market Podcast to bring world-class conversations on business, finance and technology to Somali and African audiences — and to connect them with global opportunities.' },
+    { name: 'Ahmed Barkhadle', role: 'Operations Manager', focus: 'Operations & Coordination', image: '' },
+    { name: 'Liban Mohamed', role: 'Media & Production', focus: 'Filming & Production', image: '' },
+    { name: 'Deka Dahir', role: 'Business Development Manager', focus: 'Partnerships & Growth', image: '' },
+    { name: 'Iqra Liban', role: 'Presenter & Content Host', focus: 'Hosting & Interviews', image: '' },
+    { name: 'Farhia Hassan', role: 'Marketing & Social Media Manager', focus: 'Marketing & Social Media', image: '' },
+  ],
   partners: [
     { name: 'Barakaat', logo: '', link: '' }, { name: 'Sabah Visions', logo: '', link: '' }, { name: 'Horizon Group', logo: '', link: '' },
     { name: 'Nomad Capital', logo: '', link: '' }, { name: 'Hormuud Tech', logo: '', link: '' }, { name: 'East Africa Fund', logo: '', link: '' },
@@ -162,4 +172,5 @@ export const COL = {
   settings: 'dreamSettings',
   sessions: 'dreamAdminSessions',
   stats: 'dreamStats',
+  team: 'dreamTeam',
 }

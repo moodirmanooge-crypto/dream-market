@@ -17,6 +17,8 @@ import PlayerModal from '../components/PlayerModal'
 import SponsorCTA from '../components/SponsorCTA'
 import LeadMagnet from '../components/LeadMagnet'
 import SocialLinks from '../components/SocialLinks'
+import Team from '../components/Team'
+import VisitorCounter from '../components/VisitorCounter'
 import { useCollection } from '../hooks/useCollection'
 import { useSettings } from '../hooks/useSettings'
 import { useReveal } from '../hooks/useReveal'
@@ -28,9 +30,10 @@ export default function Home() {
   const shows = useCollection('shows')
   const guests = useCollection('guests')
   const partners = useCollection('partners')
+  const team = useCollection('team')
   const [playing, setPlaying] = useState(null)
   useTrack('home')
-  useReveal([episodes, shows, guests, partners, s])
+  useReveal([episodes, shows, guests, partners, team, s])
   useEffect(() => { document.title = `${s.brand.name} | ${s.hero.title}` }, [s.brand.name, s.hero.title])
 
   const featured = episodes.find((e) => e.featured) || episodes[0]
@@ -47,11 +50,13 @@ export default function Home() {
         <Hero episodes={episodes} onPlay={setPlaying} hero={s.hero} social={s.social} />
         <Ticker ticker={s.ticker} />
         <Stats stats={s.stats} />
+        <VisitorCounter cfg={s.visitors} />
         <Featured episode={featured} onPlay={setPlaying} head={sec.featured} />
         <Episodes episodes={episodes} onPlay={setPlaying} head={sec.episodes} categories={s.categories} />
         {shows.length > 0 && <Shows shows={shows} head={sec.shows} />}
         {guests.length > 0 && <Guests guests={guests} head={sec.guests} />}
         <About about={s.about} head={sec.about} />
+        {team.length > 0 && <Team team={team} head={sec.team} />}
         <SponsorCTA sponsor={s.sponsor} />
         {partners.length > 0 && <Partners partners={partners} head={sec.partners} cta={s.partnersCta} />}
         <LeadMagnet nl={s.newsletter} />

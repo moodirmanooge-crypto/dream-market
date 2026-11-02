@@ -43,6 +43,7 @@ service cloud.firestore {
     match /dreamShows/{id}     { allow read: if true; allow write: if isDreamAdmin(); }
     match /dreamGuests/{id}    { allow read: if true; allow write: if isDreamAdmin(); }
     match /dreamPartners/{id}  { allow read: if true; allow write: if isDreamAdmin(); }
+    match /dreamTeam/{id}      { allow read: if true; allow write: if isDreamAdmin(); }
 
     // Visitors send messages / subscribe; only admin reads them
     match /dreamMessages/{id} {
@@ -54,9 +55,9 @@ service cloud.firestore {
       allow create: if request.resource.data.email is string && request.resource.data.email.size() < 200;
       allow read, delete: if isDreamAdmin();
     }
-    // Visitor statistics: the website adds counts, only admin can read them
+    // Visitor statistics: the website adds counts; counts are public (shown on the homepage)
     match /dreamStats/{id} {
-      allow read: if isDreamAdmin();
+      allow read: if true;
       allow create, update: if (id == 'total' || id.matches('day-[0-9]{4}-[0-9]{2}-[0-9]{2}'))
         && request.resource.data.keys().hasOnly(['date', 'visits', 'visitors', 'pageviews', 'mobile', 'desktop', 'sources', 'pages', 'updatedAt']);
       allow delete: if isDreamAdmin();

@@ -15,7 +15,7 @@ const NAV = [
   { id: 'analytics', icon: '📈', label: 'Booqdayaasha' },
   { group: 'Bogga (Website content)' },
   { id: 'hero', icon: '🏠', label: 'Logo & Hero', keys: ['brand', 'hero'], help: 'Logo-ga, cinwaanka weyn, qoraalada, badhamada iyo sawirka hero-ga.' },
-  { id: 'ticker', icon: '📈', label: 'Ticker & Stats', keys: ['ticker', 'stats'], help: 'Qoraalada socda iyo tirooyinka.' },
+  { id: 'ticker', icon: '📈', label: 'Ticker & Stats', keys: ['ticker', 'stats', 'visitors'], help: 'Qoraalada socda, tirooyinka iyo booqdayaasha bogga hore ka muuqda (Visitors → show: dami si aad u qariso).' },
   { id: 'sections', icon: '🔤', label: 'Cinwaanada qaybaha', keys: ['sections', 'categories'], help: 'Kicker, cinwaan iyo erayga dahabka ah ee qayb kasta + badhamada Categories (Forex, Finance…) ee Episodes.' },
   { id: 'about', icon: 'ℹ️', label: 'About', keys: ['about'], help: 'Qoraalka, sawirka, Mission/Vision/Values iyo timeline.' },
   { id: 'social', icon: '🔗', label: 'Social Media Links', keys: ['social'], help: 'Ku dheji link-ga buuxa (https://…) ee TikTok, Facebook, YouTube iyo kuwa kale. Kuwa madhan website-ka kama muuqdaan.' },
@@ -26,6 +26,7 @@ const NAV = [
   { group: 'Xogta (Content)' },
   { id: 'episodes', icon: '🎙', label: 'Episodes', col: true },
   { id: 'shows', icon: '📺', label: 'Shows', col: true },
+  { id: 'team', icon: '🧑‍🤝‍🧑', label: 'Team', col: true },
   { id: 'guests', icon: '👤', label: 'Guests', col: true },
   { id: 'partners', icon: '🤝', label: 'Partners', col: true },
   { group: 'Sanduuqa' },
@@ -122,7 +123,7 @@ function Dashboard({ go }) {
   const [msg, setMsg] = useState('')
   const [busy, setBusy] = useState(false)
   useEffect(() => {
-    const unsubs = ['episodes', 'shows', 'guests', 'partners', 'messages', 'subscribers'].map((n) =>
+    const unsubs = ['episodes', 'shows', 'guests', 'partners', 'team', 'messages', 'subscribers'].map((n) =>
       onSnapshot(collection(db, COL[n]), (s) => setCounts((c) => ({ ...c, [n]: s.size, [`${n}New`]: s.docs.filter((d) => d.data().read === false).length })), () => {}))
     return () => unsubs.forEach((u) => u())
   }, [])
@@ -163,7 +164,7 @@ function Dashboard({ go }) {
 
   const cards = [
     ['episodes', '🎙', 'Episodes'], ['shows', '📺', 'Shows'], ['guests', '👤', 'Guests'],
-    ['partners', '🤝', 'Partners'], ['messages', '✉️', 'Fariimo'], ['subscribers', '📬', 'Email List'],
+    ['partners', '🤝', 'Partners'], ['team', '🧑‍🤝‍🧑', 'Team'], ['messages', '✉️', 'Fariimo'], ['subscribers', '📬', 'Email List'],
   ]
   return (
     <div>
