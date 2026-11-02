@@ -20,6 +20,7 @@ import SocialLinks from '../components/SocialLinks'
 import { useCollection } from '../hooks/useCollection'
 import { useSettings } from '../hooks/useSettings'
 import { useReveal } from '../hooks/useReveal'
+import { useTrack } from '../hooks/useTrack'
 
 export default function Home() {
   const s = useSettings()
@@ -28,6 +29,7 @@ export default function Home() {
   const guests = useCollection('guests')
   const partners = useCollection('partners')
   const [playing, setPlaying] = useState(null)
+  useTrack('home')
   useReveal([episodes, shows, guests, partners, s])
   useEffect(() => { document.title = `${s.brand.name} | ${s.hero.title}` }, [s.brand.name, s.hero.title])
 

@@ -7,10 +7,12 @@ import { adminLogin, adminLogout } from '../admin/adminAuth'
 import SettingsEditor from '../admin/SettingsEditor'
 import CollectionManager from '../admin/CollectionManager'
 import Inbox from '../admin/Inbox'
+import Analytics, { useTodayStats } from '../admin/Analytics'
 
 const NAV = [
   { group: 'Guud' },
   { id: 'dashboard', icon: '📊', label: 'Dashboard' },
+  { id: 'analytics', icon: '📈', label: 'Booqdayaasha' },
   { group: 'Bogga (Website content)' },
   { id: 'hero', icon: '🏠', label: 'Logo & Hero', keys: ['brand', 'hero'], help: 'Logo-ga, cinwaanka weyn, qoraalada, badhamada iyo sawirka hero-ga.' },
   { id: 'ticker', icon: '📈', label: 'Ticker & Stats', keys: ['ticker', 'stats'], help: 'Qoraalada socda iyo tirooyinka.' },
@@ -104,6 +106,7 @@ function Panel({ admin, onLogout }) {
         </header>
         <div className="adm-content">
           {tab === 'dashboard' && <Dashboard go={setTab} />}
+          {tab === 'analytics' && <Analytics />}
           {item.keys && <SettingsEditor key={item.id} keys={item.keys} title={item.label} help={item.help} />}
           {item.col && <CollectionManager name={item.id} />}
           {item.inbox && <Inbox name={item.id} />}
@@ -115,6 +118,7 @@ function Panel({ admin, onLogout }) {
 
 function Dashboard({ go }) {
   const [counts, setCounts] = useState({})
+  const vis = useTodayStats()
   const [msg, setMsg] = useState('')
   const [busy, setBusy] = useState(false)
   useEffect(() => {
@@ -164,6 +168,12 @@ function Dashboard({ go }) {
   return (
     <div>
       <div className="adm-pagehead"><div><h2>Ku soo dhawoow 👋</h2><p>Halkan ka maamul dhammaan website-ka Dream Market Podcast.</p></div></div>
+      <button className="an-dash" onClick={() => go('analytics')}>
+        <div><small>👥 Booqdayaal maanta</small><strong>{(vis.today?.visitors || 0).toLocaleString()}</strong></div>
+        <div><small>🔁 Jeer la soo galay maanta</small><strong>{(vis.today?.visits || 0).toLocaleString()}</strong></div>
+        <div><small>🌍 Wadarta guud</small><strong>{(vis.total?.visits || 0).toLocaleString()}</strong></div>
+        <span>Fiiri faahfaahinta →</span>
+      </button>
       <div className="adm-stats">
         {cards.map(([k, ic, l]) => (
           <button key={k} className="adm-stat" onClick={() => go(k)}>
@@ -192,3 +202,4 @@ function Dashboard({ go }) {
     </div>
   )
 }
+

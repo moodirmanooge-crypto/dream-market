@@ -161,4 +161,5 @@ export const COL = {
   subscribers: 'dreamSubscribers',
   settings: 'dreamSettings',
   sessions: 'dreamAdminSessions',
+  stats: 'dreamStats',
 }

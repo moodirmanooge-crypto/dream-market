@@ -6,6 +6,7 @@ import { COL } from '../data/seed'
 import { useSettings } from '../hooks/useSettings'
 import { useCollection } from '../hooks/useCollection'
 import { useReveal } from '../hooks/useReveal'
+import { useTrack } from '../hooks/useTrack'
 import Brand from '../components/Brand'
 import { Counter } from '../components/Stats'
 import SocialLinks, { SocialIcon } from '../components/SocialLinks'
@@ -22,6 +23,7 @@ export default function Sponsor() {
   const [f, setF] = useState(blank)
   const [state, setState] = useState('idle')
   useReveal([s, partners])
+  useTrack('sponsor')
   useEffect(() => { document.title = `Sponsor Us | ${s.brand.name}` }, [s.brand.name])
   useEffect(() => {
     if (hash) setTimeout(() => document.querySelector(hash)?.scrollIntoView({ behavior: 'smooth' }), 300)
