@@ -842,3 +842,7 @@ button.danger:hover { background: #ff6b6b !important; color: #000 !important; }
 .pp__btns { display: flex; flex-wrap: wrap; gap: 6px; }
 .pp__btns button { flex: 1 1 auto; padding: 8px 10px; border-radius: 9px; border: 1px solid var(--line); font-weight: 700; font-size: .8rem; }
 .pp__btns button:hover { background: var(--gold); color: #000; }
+
+/* Fix: photos always fill the round frame exactly (so admin positioning matches the website) */
+.tm-photo img, .guest__photo img, .adm-item__thumb img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.adm-item__thumb { position: relative; }

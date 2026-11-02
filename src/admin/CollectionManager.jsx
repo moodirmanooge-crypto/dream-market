@@ -5,6 +5,7 @@ import { COL, seed } from '../data/seed'
 import { byOrder } from '../hooks/useCollection'
 import { Field } from './fields'
 import PhotoPositioner from './PhotoPositioner'
+import { photoStyle } from '../components/photoFit'
 
 export const SCHEMAS = {
   episodes: {
@@ -124,7 +125,7 @@ export default function CollectionManager({ name }) {
         {rows.map((r, i) => (
           <div key={r.id} className={`adm-item ${r.hidden ? 'is-hidden' : ''}`}>
             <span className="adm-item__pos">{i + 1}</span>
-            <div className="adm-item__thumb">{thumb(r) ? <img src={thumb(r)} alt="" /> : <span>{r.icon || (r.title || r.name || '?')[0]}</span>}</div>
+            <div className="adm-item__thumb">{thumb(r) ? <img src={thumb(r)} alt="" style={r.image === thumb(r) ? photoStyle(r.imageFit) : undefined} /> : <span>{r.icon || (r.title || r.name || '?')[0]}</span>}</div>
             <div className="adm-item__info">
               <b>{r.number ? `#${r.number} · ` : ''}{r.title || r.name}</b>
               <small>{[r.guest, r.role, r.focus, r.category, r.duration].filter(Boolean).join(' · ') || r.description || r.link || ''}</small>
