@@ -1,10 +1,11 @@
 import SectionHead from './SectionHead'
 import { initials } from './Featured'
+import { photoStyle } from './photoFit'
 
 function Photo({ m, big }) {
   return (
     <div className={`tm-photo ${big ? 'tm-photo--big' : ''}`}>
-      {m.image ? <img src={m.image} alt={m.name} loading="lazy" /> : <span>{initials(m.name)}</span>}
+      {m.image ? <img src={m.image} alt={m.name} loading="lazy" style={photoStyle(m.imageFit)} /> : <span>{initials(m.name)}</span>}
       <i className="tm-photo__ring" />
     </div>
   )

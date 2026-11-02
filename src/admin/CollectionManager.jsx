@@ -4,6 +4,7 @@ import { db } from '../firebase'
 import { COL, seed } from '../data/seed'
 import { byOrder } from '../hooks/useCollection'
 import { Field } from './fields'
+import PhotoPositioner from './PhotoPositioner'
 
 export const SCHEMAS = {
   episodes: {
@@ -16,8 +17,8 @@ export const SCHEMAS = {
     ],
   },
   shows: { title: 'Shows', single: 'Show', fields: [['title', 'text', 'Title'], ['icon', 'text', 'Icon (emoji)'], ['image', 'image', 'Background image'], ['description', 'textarea', 'Description'], ['link', 'url', 'Link'], ['hidden', 'checkbox', '🙈 Qari']] },
-  guests: { title: 'Guests', single: 'Guest', fields: [['name', 'text', 'Name'], ['role', 'text', 'Role / company'], ['image', 'image', 'Photo'], ['hidden', 'checkbox', '🙈 Qari']] },
-  team: { title: 'Team', single: 'Team member', fields: [['name', 'text', 'Name'], ['role', 'text', 'Role / Title'], ['focus', 'text', 'Focus', 'tusaale: Filming & Production'], ['image', 'image', 'Photo'], ['bio', 'textarea', 'Qoraal / Bio', 'ikhtiyaari — wixii aad qorto ayaa website-ka ka muuqda'], ['founder', 'checkbox', '👑 Founder — kaarka weyn ee sare'], ['hidden', 'checkbox', '🙈 Qari']] },
+  guests: { title: 'Guests', single: 'Guest', fields: [['name', 'text', 'Name'], ['role', 'text', 'Role / company'], ['image', 'image', 'Photo'], ['imageFit', 'fit', '🎯 Hagaaji sawirka circle-ka', 'jiid sawirka ama isticmaal badhamada'], ['hidden', 'checkbox', '🙈 Qari']] },
+  team: { title: 'Team', single: 'Team member', fields: [['name', 'text', 'Name'], ['role', 'text', 'Role / Title'], ['focus', 'text', 'Focus', 'tusaale: Filming & Production'], ['image', 'image', 'Photo'], ['imageFit', 'fit', '🎯 Hagaaji sawirka circle-ka', 'jiid sawirka ama isticmaal badhamada'], ['bio', 'textarea', 'Qoraal / Bio', 'ikhtiyaari — wixii aad qorto ayaa website-ka ka muuqda'], ['founder', 'checkbox', '👑 Founder — kaarka weyn ee sare'], ['hidden', 'checkbox', '🙈 Qari']] },
   partners: { title: 'Partners', single: 'Partner', fields: [['name', 'text', 'Name'], ['logo', 'image', 'Logo'], ['link', 'url', 'Website link'], ['hidden', 'checkbox', '🙈 Qari']] },
 }
 
@@ -103,7 +104,10 @@ export default function CollectionManager({ name }) {
               <button type="button" onClick={() => setForm(null)}>✕</button>
             </div>
             <div className="adm-drawer__body">
-              {schema.fields.map(([k, type, label, hint]) => (
+              {schema.fields.map(([k, type, label, hint]) => type === 'fit' ? (
+                <div key={k} className="adm-field"><span>{label}{hint && <em>{hint}</em>}</span>
+                  <PhotoPositioner image={form.image} value={form[k]} onChange={(v) => setForm({ ...form, [k]: v })} /></div>
+              ) : (
                 <Field key={k} label={label} hint={hint} type={type} value={form[k]} folder={name} onChange={(v) => setForm({ ...form, [k]: v })} />
               ))}
             </div>

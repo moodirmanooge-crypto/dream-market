@@ -822,3 +822,23 @@ button.danger:hover { background: #ff6b6b !important; color: #000 !important; }
 }
 
 .tm-cardbio { color: #d6d3cb; margin: 14px 0 0; font-size: .9rem; line-height: 1.6; }
+
+/* ============ Admin: photo positioner ============ */
+.pp { display: grid; gap: 14px; padding: 16px; border-radius: 14px; border: 1px solid var(--line-soft); background: #0a0a0a; }
+.pp-empty { margin: 0; font-size: .88rem; }
+.pp__stage { display: flex; align-items: center; justify-content: center; gap: 26px; flex-wrap: wrap; }
+.pp__circle { position: relative; width: 210px; height: 210px; border-radius: 50%; overflow: hidden; cursor: grab; touch-action: none; user-select: none;
+  border: 3px solid var(--gold); box-shadow: 0 0 0 8px rgba(212,175,55,.08); background: #111; }
+.pp__circle:active { cursor: grabbing; }
+.pp__circle img, .pp__small img { width: 100%; height: 100%; object-fit: cover; pointer-events: none; }
+.pp__ring { position: absolute; inset: 6px; border-radius: 50%; border: 1px dashed rgba(212,175,55,.6); pointer-events: none; }
+.pp__hint { position: absolute; left: 50%; bottom: 10px; transform: translateX(-50%); font-size: .72rem; font-weight: 700; padding: 3px 10px; border-radius: 999px; background: rgba(0,0,0,.65); pointer-events: none; }
+.pp__mini { display: grid; justify-items: center; gap: 8px; }
+.pp__small { width: 90px; height: 90px; border-radius: 50%; overflow: hidden; border: 2px solid var(--line); }
+.pp__mini small { color: var(--muted); font-size: .72rem; max-width: 110px; text-align: center; }
+.pp__zoom { display: grid; grid-template-columns: auto 1fr 48px; align-items: center; gap: 12px; font-weight: 700; font-size: .85rem; }
+.pp__zoom input { padding: 0; accent-color: var(--gold); border: 0; background: none; box-shadow: none !important; }
+.pp__zoom b { text-align: right; color: var(--gold); }
+.pp__btns { display: flex; flex-wrap: wrap; gap: 6px; }
+.pp__btns button { flex: 1 1 auto; padding: 8px 10px; border-radius: 9px; border: 1px solid var(--line); font-weight: 700; font-size: .8rem; }
+.pp__btns button:hover { background: var(--gold); color: #000; }

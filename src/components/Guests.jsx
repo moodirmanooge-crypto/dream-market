@@ -1,5 +1,6 @@
 import SectionHead from './SectionHead'
 import { initials } from './Featured'
+import { photoStyle } from './photoFit'
 
 export default function Guests({ guests, head }) {
   const loop = [...guests, ...guests]
@@ -11,7 +12,7 @@ export default function Guests({ guests, head }) {
           {loop.map((g, i) => (
             <figure className="guest" key={i}>
               <div className="guest__photo">
-                {g.image ? <img src={g.image} alt={g.name} /> : <span>{initials(g.name)}</span>}
+                {g.image ? <img src={g.image} alt={g.name} style={photoStyle(g.imageFit)} /> : <span>{initials(g.name)}</span>}
                 <i className="guest__ring" />
               </div>
               <figcaption><b>{g.name}</b><small>{g.role}</small></figcaption>
