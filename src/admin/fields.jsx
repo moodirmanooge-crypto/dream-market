@@ -5,6 +5,7 @@ export const human = (k) => k.replace(/([A-Z])/g, ' $1').replace(/^./, (c) => c.
 export function inferType(key, value) {
   const k = key.toLowerCase()
   if (k.includes('video')) return 'video'
+  if (k.includes('certificate')) return 'file'
   if (k.includes('image') || k.includes('logo') && k !== 'logotext' || k === 'photo') return 'image'
   if (typeof value === 'boolean') return 'checkbox'
   if (typeof value === 'number') return 'number'
@@ -14,10 +15,12 @@ export function inferType(key, value) {
 }
 
 // One input of any type
-export function Field({ label, type, value, onChange, folder, hint }) {
+export function Field({ label, type, value, onChange, folder, hint, options = [], rows = 3 }) {
   let input
-  if (type === 'image' || type === 'video') input = <Uploader kind={type} value={value} onChange={onChange} folder={folder} />
-  else if (type === 'textarea') input = <textarea rows="3" value={value ?? ''} onChange={(e) => onChange(e.target.value)} />
+  if (type === 'image' || type === 'video' || type === 'file') input = <Uploader kind={type} value={value} onChange={onChange} folder={folder} />
+  else if (type === 'select') input = <select value={value ?? ''} onChange={(e) => onChange(e.target.value)}>{options.map((o) => <option key={o.value ?? o} value={o.value ?? o}>{o.label ?? o}</option>)}</select>
+  else if (type === 'datetime') input = <input type="datetime-local" value={value ?? ''} onChange={(e) => onChange(e.target.value)} />
+  else if (type === 'textarea') input = <textarea rows={rows} value={value ?? ''} onChange={(e) => onChange(e.target.value)} />
   else if (type === 'checkbox') return (
     <label className="adm-check"><input type="checkbox" checked={!!value} onChange={(e) => onChange(e.target.checked)} /><span>{label}</span></label>
   )

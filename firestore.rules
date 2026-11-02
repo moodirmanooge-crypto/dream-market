@@ -62,6 +62,30 @@ service cloud.firestore {
         && request.resource.data.keys().hasOnly(['date', 'visits', 'visitors', 'pageviews', 'mobile', 'desktop', 'sources', 'pages', 'updatedAt']);
       allow delete: if isDreamAdmin();
     }
+    // ---------- Competitions ----------
+    match /dreamCompetitions/{id} {
+      allow read: if true;
+      allow create, delete: if isDreamAdmin();
+      // admin edits everything; a visitor may only add +1 to "registered" while registration is open and not full
+      allow update: if isDreamAdmin() || (
+        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['registered'])
+        && request.resource.data.registered == resource.data.get('registered', 0) + 1
+        && resource.data.get('registrationOpen', false) == true
+        && (resource.data.get('maxParticipants', 0) == 0 || request.resource.data.registered <= resource.data.maxParticipants));
+    }
+    // Registrations (private). Document id = competitionId_email, so the same email cannot register twice.
+    match /dreamCompRegs/{id} {
+      allow create: if request.resource.data.status == 'pending'
+        && request.resource.data.agreed == true
+        && request.resource.data.fullName is string && request.resource.data.fullName.size() > 1 && request.resource.data.fullName.size() < 100
+        && request.resource.data.email is string && request.resource.data.email.size() < 160
+        && request.resource.data.compId is string
+        && id.matches(request.resource.data.compId + '_.+')
+        && get(/databases/$(database)/documents/dreamCompetitions/$(request.resource.data.compId)).data.get('registrationOpen', false) == true;
+      allow read, update, delete: if isDreamAdmin();
+    }
+    // Leaderboard (public, admin writes)
+    match /dreamCompBoard/{id} { allow read: if true; allow write: if isDreamAdmin(); }
     // ---------------- END DREAM ----------------
 
   }

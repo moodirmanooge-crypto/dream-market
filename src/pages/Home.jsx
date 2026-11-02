@@ -19,6 +19,7 @@ import LeadMagnet from '../components/LeadMagnet'
 import SocialLinks from '../components/SocialLinks'
 import Team from '../components/Team'
 import VisitorCounter from '../components/VisitorCounter'
+import CompetitionsTeaser from '../competitions/CompetitionsTeaser'
 import { useCollection } from '../hooks/useCollection'
 import { useSettings } from '../hooks/useSettings'
 import { useReveal } from '../hooks/useReveal'
@@ -31,9 +32,10 @@ export default function Home() {
   const guests = useCollection('guests', s.seeded)
   const partners = useCollection('partners', s.seeded)
   const team = useCollection('team', s.seeded)
+  const comps = useCollection('competitions', s.seeded)
   const [playing, setPlaying] = useState(null)
   useTrack('home')
-  useReveal([episodes, shows, guests, partners, team, s])
+  useReveal([episodes, shows, guests, partners, team, comps, s])
   useEffect(() => { document.title = `${s.brand.name} | ${s.hero.title}` }, [s.brand.name, s.hero.title])
 
   const featured = episodes.find((e) => e.featured) || episodes[0]
@@ -53,6 +55,7 @@ export default function Home() {
         <VisitorCounter cfg={s.visitors} />
         <Featured episode={featured} onPlay={setPlaying} head={sec.featured} />
         <Episodes episodes={episodes} onPlay={setPlaying} head={sec.episodes} categories={s.categories} />
+        <CompetitionsTeaser comps={comps} head={sec.competitions} />
         {shows.length > 0 && <Shows shows={shows} head={sec.shows} />}
         {guests.length > 0 && <Guests guests={guests} head={sec.guests} />}
         <About about={s.about} head={sec.about} />

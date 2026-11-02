@@ -8,11 +8,13 @@ import SettingsEditor from '../admin/SettingsEditor'
 import CollectionManager from '../admin/CollectionManager'
 import Inbox from '../admin/Inbox'
 import Analytics, { useTodayStats } from '../admin/Analytics'
+import CompetitionsAdmin from '../competitions/CompetitionsAdmin'
 
 const NAV = [
   { group: 'Guud' },
   { id: 'dashboard', icon: '📊', label: 'Dashboard' },
   { id: 'analytics', icon: '📈', label: 'Booqdayaasha' },
+  { id: 'competitions', icon: '🏆', label: 'Competitions' },
   { group: 'Bogga (Website content)' },
   { id: 'hero', icon: '🏠', label: 'Logo & Hero', keys: ['brand', 'hero'], help: 'Logo-ga, cinwaanka weyn, qoraalada, badhamada iyo sawirka hero-ga.' },
   { id: 'ticker', icon: '📈', label: 'Ticker & Stats', keys: ['ticker', 'stats', 'visitors'], help: 'Qoraalada socda, tirooyinka iyo booqdayaasha bogga hore ka muuqda (Visitors → show: dami si aad u qariso).' },
@@ -27,7 +29,7 @@ const NAV = [
   { id: 'episodes', icon: '🎙', label: 'Episodes', col: true },
   { id: 'shows', icon: '📺', label: 'Shows', col: true },
   { id: 'team', icon: '🧑‍🤝‍🧑', label: 'Team', col: true },
-  { id: 'guests', icon: '👤', label: 'Guests', col: true },
+  { id: 'guests', icon: '🏢', label: 'Guests & Companies', col: true },
   { id: 'partners', icon: '🤝', label: 'Partners', col: true },
   { group: 'Sanduuqa' },
   { id: 'messages', icon: '✉️', label: 'Fariimaha', inbox: true },
@@ -108,6 +110,7 @@ function Panel({ admin, onLogout }) {
         <div className="adm-content">
           {tab === 'dashboard' && <Dashboard go={setTab} />}
           {tab === 'analytics' && <Analytics />}
+          {tab === 'competitions' && <CompetitionsAdmin />}
           {item.keys && <SettingsEditor key={item.id} keys={item.keys} title={item.label} help={item.help} />}
           {item.col && <CollectionManager name={item.id} />}
           {item.inbox && <Inbox name={item.id} />}
@@ -188,6 +191,7 @@ function Dashboard({ go }) {
       <div className="adm-card">
         <h3>Bilow degdeg ah</h3>
         <div className="adm-quick">
+          <button onClick={() => go('competitions')}>🏆 Competitions</button>
           <button onClick={() => go('episodes')}>+ Episode cusub</button>
           <button onClick={() => go('hero')}>Beddel Hero-ga</button>
           <button onClick={() => go('guests')}>+ Marti cusub</button>

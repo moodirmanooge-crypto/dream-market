@@ -3,6 +3,8 @@ import { Routes, Route } from 'react-router-dom'
 import Home from './pages/Home.jsx'
 const Admin = lazy(() => import('./pages/Admin.jsx'))
 const Sponsor = lazy(() => import('./pages/Sponsor.jsx'))
+const CompetitionsPage = lazy(() => import('./competitions/CompetitionsPage.jsx'))
+const CompetitionDetail = lazy(() => import('./competitions/CompetitionDetail.jsx'))
 
 export default function App() {
   return (
@@ -10,6 +12,8 @@ export default function App() {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/sponsor" element={<Sponsor />} />
+        <Route path="/competitions" element={<CompetitionsPage />} />
+        <Route path="/competitions/:id" element={<CompetitionDetail />} />
         <Route path="/admin" element={<Admin />} />
         <Route path="*" element={<Home />} />
       </Routes>

@@ -20,12 +20,13 @@ export default function Uploader({ value, onChange, kind = 'image', folder = 'me
   }
 
   const isVideo = kind === 'video' || /\.(mp4|webm|mov)(\?|$)/i.test(value || '')
+  const isPdf = /\.pdf(\?|$)/i.test(value || '') || /%2F[^?]*\.pdf/i.test(value || '')
   return (
     <div className="upl">
       <div className={`upl__preview ${value ? '' : 'is-empty'}`} onClick={() => input.current.click()}
         onDragOver={(e) => e.preventDefault()} onDrop={(e) => { e.preventDefault(); upload(e.dataTransfer.files[0]) }}>
-        {value ? (isVideo ? <video src={value} muted controls /> : <img src={value} alt="" />)
-          : <span>{kind === 'video' ? '🎬' : '🖼️'}<small>Riix ama soo jiid {kind === 'video' ? 'video' : 'sawir'}</small></span>}
+        {value ? (isPdf ? <a href={value} target="_blank" rel="noreferrer" onClick={(e) => e.stopPropagation()} className="upl__pdf">📄 PDF — fur</a> : isVideo ? <video src={value} muted controls /> : <img src={value} alt="" />)
+          : <span>{kind === 'video' ? '🎬' : '🖼️'}<small>Riix ama soo jiid {kind === 'video' ? 'video' : kind === 'file' ? 'sawir ama PDF' : 'sawir'}</small></span>}
         {pct !== null && <div className="upl__bar"><i style={{ width: `${pct}%` }} /><b>{pct}%</b></div>}
       </div>
       <div className="upl__row">
@@ -34,7 +35,7 @@ export default function Uploader({ value, onChange, kind = 'image', folder = 'me
         {value && <button type="button" className="danger" onClick={() => onChange('')}>✕</button>}
       </div>
       {err && <small className="err">{err}</small>}
-      <input ref={input} type="file" hidden accept={kind === 'video' ? 'video/*' : 'image/*'} onChange={(e) => { upload(e.target.files[0]); e.target.value = '' }} />
+      <input ref={input} type="file" hidden accept={kind === 'video' ? 'video/*' : kind === 'file' ? 'image/*,application/pdf' : 'image/*'} onChange={(e) => { upload(e.target.files[0]); e.target.value = '' }} />
     </div>
   )
 }

@@ -2,7 +2,8 @@ import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import Brand from './Brand'
 
-const links = ['Home', 'About', 'Team', 'Shows', 'Episodes', 'Guests', 'Contact']
+const links = ['Home', 'About', 'Team', 'Shows', 'Episodes', 'Competitions', 'Contact']
+const ROUTES = { Competitions: '/competitions' }
 
 export default function Navbar({ brand, sponsorLabel = 'Sponsor Us' }) {
   const [open, setOpen] = useState(false)
@@ -25,7 +26,7 @@ export default function Navbar({ brand, sponsorLabel = 'Sponsor Us' }) {
     return () => window.removeEventListener('scroll', onScroll)
   }, [])
 
-  useEffect(() => { document.body.style.overflow = open ? 'hidden' : '' }, [open])
+  useEffect(() => { document.body.style.overflow = open ? 'hidden' : ''; return () => { document.body.style.overflow = '' } }, [open])
 
   const go = (id) => {
     setOpen(false)
@@ -38,9 +39,9 @@ export default function Navbar({ brand, sponsorLabel = 'Sponsor Us' }) {
         <div className="nav__inner container">
           <button onClick={() => go('home')} aria-label="Home"><Brand brand={brand} /></button>
           <nav className="nav__links">
-            {links.map((l) => (
-              <button key={l} className={active === l.toLowerCase() ? 'is-active' : ''} onClick={() => go(l.toLowerCase())}>{l}</button>
-            ))}
+            {links.map((l) => ROUTES[l]
+              ? <Link key={l} to={ROUTES[l]} className="nav__route">{l}<sup>New</sup></Link>
+              : <button key={l} className={active === l.toLowerCase() ? 'is-active' : ''} onClick={() => go(l.toLowerCase())}>{l}</button>)}
           </nav>
           <Link className="btn btn--gold btn--sm nav__cta" to="/sponsor">{sponsorLabel}</Link>
           <button className={`burger ${open ? 'is-open' : ''}`} onClick={() => setOpen(!open)} aria-label="Menu">
@@ -52,7 +53,9 @@ export default function Navbar({ brand, sponsorLabel = 'Sponsor Us' }) {
 
       <div className={`mobile-menu ${open ? 'is-open' : ''}`}>
         <div className="mobile-menu__line" />
-        {links.map((l, i) => (
+        {links.map((l, i) => ROUTES[l] ? (
+          <Link key={l} to={ROUTES[l]} className="mobile-menu__route" style={{ transitionDelay: open ? `${0.08 + i * 0.06}s` : '0s' }} onClick={() => setOpen(false)}><small>0{i + 1}</small>{l} 🏆</Link>
+        ) : (
           <button key={l} style={{ transitionDelay: open ? `${0.08 + i * 0.06}s` : '0s' }} onClick={() => go(l.toLowerCase())}>
             <small>0{i + 1}</small>{l}
           </button>

@@ -37,6 +37,7 @@ export const defaultSettings = {
     featured: { kicker: 'Featured Episode', title: 'The conversation', gold: 'everyone is talking about.' },
     episodes: { kicker: 'Latest Episodes', title: 'Fresh talks,', gold: 'every single week.' },
     shows: { kicker: 'Our Shows', title: 'Programs built for', gold: 'ambitious minds.', text: 'Business, finance, markets and technology — each show explores a different side of the ideas and people shaping tomorrow.' },
+    competitions: { kicker: 'Trading Competitions', title: 'Compete. Prove your skills.', gold: 'Win big.', text: 'Join Dream Market trading competitions, climb the live leaderboard and win funded accounts, cash prizes and courses.' },
     guests: { kicker: 'Meet Our Guests', title: 'CEOs, founders &', gold: 'investors.', text: 'The people shaping business and finance — in their own words.' },
     about: { kicker: 'Our Story', title: 'More than a podcast —', gold: 'a global media platform.', text: 'Discover the people, ideas and businesses shaping the future of finance, technology and entrepreneurship.' },
     team: { kicker: 'Meet Our Team', title: 'The People Behind', gold: 'the Conversations.', text: 'At Dream Market Podcast, our team is driven by a shared passion for business, finance, technology and meaningful conversations. We bring together creativity, expertise and a global vision to connect people, share knowledge and inspire new opportunities. Meet the team behind Dream Market Podcast.' },
@@ -154,6 +155,22 @@ export const seed = {
     { name: 'Iqra Liban', role: 'Presenter & Content Host', focus: 'Hosting & Interviews', image: '' },
     { name: 'Farhia Hassan', role: 'Marketing & Social Media Manager', focus: 'Marketing & Social Media', image: '' },
   ],
+  competitions: [
+    {
+      id: 'sample', name: 'Dream Monthly Trading Competition', type: 'Monthly', featured: true, registrationOpen: false,
+      description: 'Compete with traders from Somalia, East Africa and the diaspora. Trade a demo account for one month — the highest profit % wins a funded account.',
+      organizer: 'Dream Market Podcast', sponsor: '', sponsorLogo: '', sponsorLink: '', banner: '',
+      start: '2026-12-01T09:00', end: '2026-12-31T21:00', regDeadline: '2026-11-28T23:59',
+      entryFee: 'Free', maxParticipants: 100, registered: 0, mode: 'Demo', platform: 'MT5', accountSize: '$10,000', prizePool: '$15,000',
+      howToJoin: 'Click "Join the Competition" and fill in the form.\nWait for approval — we confirm by email or WhatsApp.\nReceive your demo account login before the start date.\nTrade during the competition period and follow the live leaderboard.',
+      rules: 'One account per person — multiple accounts are disqualified.\nRanking is based on profit % (not $ profit).\nMinimum 5 trades during the competition.\nNo copy trading, account sharing or manipulation.\nMaximum drawdown 10% — accounts above this are disqualified.\nDream Market Podcast decisions on winners are final.',
+      prizes: [
+        { place: '1st Place', prize: '$5K Funded Account' }, { place: '2nd Place', prize: '$5K Funded Account' }, { place: '3rd Place', prize: '$5K Funded Account' },
+        { place: '4th Place', prize: 'Free Forex Course' }, { place: '5th Place', prize: 'Special Award' },
+      ],
+      winners: [],
+    },
+  ],
   partners: [
     { name: 'Barakaat', logo: '', link: '' }, { name: 'Sabah Visions', logo: '', link: '' }, { name: 'Horizon Group', logo: '', link: '' },
     { name: 'Nomad Capital', logo: '', link: '' }, { name: 'Hormuud Tech', logo: '', link: '' }, { name: 'East Africa Fund', logo: '', link: '' },
@@ -174,4 +191,7 @@ export const COL = {
   sessions: 'dreamAdminSessions',
   stats: 'dreamStats',
   team: 'dreamTeam',
+  competitions: 'dreamCompetitions',
+  regs: 'dreamCompRegs',
+  board: 'dreamCompBoard',
 }
