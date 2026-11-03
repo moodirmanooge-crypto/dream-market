@@ -38,7 +38,7 @@ export const defaultSettings = {
     episodes: { kicker: 'Latest Episodes', title: 'Fresh talks,', gold: 'every single week.' },
     shows: { kicker: 'Our Shows', title: 'Programs built for', gold: 'ambitious minds.', text: 'Business, finance, markets and technology — each show explores a different side of the ideas and people shaping tomorrow.' },
     competitions: { kicker: 'Trading Competitions', title: 'Compete. Prove your skills.', gold: 'Win big.', text: 'Join Dream Market trading competitions, climb the live leaderboard and win funded accounts, cash prizes and courses.' },
-    guests: { kicker: 'Meet Our Guests', title: 'CEOs, founders &', gold: 'investors.', text: 'The people shaping business and finance — in their own words.' },
+    guests: { kicker: 'Featured Partners & Offers', title: 'Trusted brands,', gold: 'exclusive deals.', text: 'Discover the prop firms, brokers and companies we work with — and unlock exclusive Dream Market discounts, codes and offers.' },
     about: { kicker: 'Our Story', title: 'More than a podcast —', gold: 'a global media platform.', text: 'Discover the people, ideas and businesses shaping the future of finance, technology and entrepreneurship.' },
     team: { kicker: 'Meet Our Team', title: 'The People Behind', gold: 'the Conversations.', text: 'At Dream Market Podcast, our team is driven by a shared passion for business, finance, technology and meaningful conversations. We bring together creativity, expertise and a global vision to connect people, share knowledge and inspire new opportunities. Meet the team behind Dream Market Podcast.' },
     partners: { kicker: 'Partners & Sponsors', title: 'Trusted by', gold: 'brands that build.' },
