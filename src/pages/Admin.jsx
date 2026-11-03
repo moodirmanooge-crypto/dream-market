@@ -12,6 +12,7 @@ import CompetitionsAdmin from '../competitions/CompetitionsAdmin'
 import NotificationsPage from '../admin/NotificationsPage'
 import { useAdminAlerts } from '../admin/useAdminAlerts'
 import { permission, swReg } from '../admin/notify'
+import { runCompetitionMigrations } from '../competitions/migrate'
 
 const NAV = [
   { group: 'Guud' },
@@ -89,6 +90,7 @@ function Panel({ admin, onLogout }) {
   const [bell, setBell] = useState(false)
   const { alerts, unread, clearUnread, toasts, dismiss } = useAdminAlerts(true)
   useEffect(() => { swReg().catch(() => {}); if (location.search) history.replaceState(null, '', '/admin') }, [])
+  useEffect(() => { runCompetitionMigrations().catch((e) => console.warn('[migrate]', e.message)) }, [])
   useEffect(() => { try { sessionStorage.setItem('dmp-admin-tab', tab) } catch { /* ignore */ } window.scrollTo(0, 0) }, [tab])
   const item = NAV.find((n) => n.id === tab) || NAV[1]
 
@@ -234,4 +236,3 @@ function Dashboard({ go }) {
     </div>
   )
 }
-
