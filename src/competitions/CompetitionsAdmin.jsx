@@ -5,6 +5,7 @@ import { COL, seed } from '../data/seed'
 import { Field, ValueEditor } from '../admin/fields'
 import { compState, fmtDate, money, pctFmt, rankBoard } from './util'
 import { StatusPill } from './CompCard'
+import { applyCashPrizes, isOldComp } from './migrate'
 
 const TYPES = ['Monthly', 'Sponsored', 'Championship']
 const BLANK = {
@@ -47,6 +48,20 @@ export default function CompetitionsAdmin() {
 }
 
 function List({ comps, setView, setErr }) {
+  const [fixMsg, setFixMsg] = useState('')
+  const needFix = comps.filter((c) => isOldComp(c) || (!c.registrationOpen && compState(c).phase !== 'ended'))
+  const fixAll = async () => {
+    setFixMsg('…')
+    try {
+      for (const c of needFix) {
+        if (isOldComp(c)) await applyCashPrizes(c.id, c)
+        else await updateDoc(doc(db, COL.competitions, c.id), { registrationOpen: true })
+      }
+      setFixMsg('✓ Waa la saxay! Abaalmarinta: $250 / $150 / $100 cash, registration-kuna waa furan yahay. Fiiri website-ka (Ctrl + F5).')
+    } catch (e) {
+      setFixMsg(e.code === 'permission-denied' ? 'Firestore rules ayaa diiday: Firebase → Firestore → Rules → ku dheji firestore.rules (qaybta DREAM) → Publish, kadib mar kale riix.' : e.message)
+    }
+  }
   const toggle = (c) => updateDoc(doc(db, COL.competitions, c.id), { registrationOpen: !c.registrationOpen }).catch((e) => setErr(e.message))
   const remove = async (c) => {
     if (!confirm(`Tirtir "${c.name}"? Dhammaan diiwaangelinta iyo leaderboard-ka tartankan waa la tirtirayaa.`)) return
@@ -63,6 +78,14 @@ function List({ comps, setView, setErr }) {
         <div><h2>Competitions <small>({comps.length})</small></h2><p>Samee tartan, maamul isdiiwaangelinta, leaderboard-ka iyo guuleystayaasha.</p></div>
         <button className="btn btn--gold" onClick={() => setView({ mode: 'edit', comp: null })}>+ Competition cusub</button>
       </div>
+      {needFix.length > 0 && (
+        <div className="ca-fix">
+          <span>⚡</span>
+          <div><b>{needFix.length} tartan ayaa u baahan cusboonaysiin</b><small>Abaalmarinta cash-ka ah ($250 · $150 · $100) iyo furitaanka registration-ka si dadku ugu biiri karaan (JOIN).</small></div>
+          <button className="btn btn--gold" onClick={fixAll} disabled={fixMsg === '…'}>{fixMsg === '…' ? 'Saxaya…' : '⚡ Hal riix ku sax'}</button>
+        </div>
+      )}
+      {fixMsg && fixMsg !== '…' && <p className={fixMsg.startsWith('✓') ? 'ok ca-fixmsg' : 'err ca-fixmsg'}>{fixMsg}</p>}
       {comps.length === 0 && <div className="adm-card adm-empty">Weli tartan ma jiro. Riix "+ Competition cusub".</div>}
       <div className="adm-items">
         {comps.map((c) => {

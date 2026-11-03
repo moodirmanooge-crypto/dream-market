@@ -1088,3 +1088,7 @@ a.guest { display: block; color: inherit; }
 .nt-key { display: flex; gap: 8px; margin-top: 8px; }
 .nt-key input { flex: 1; min-width: 0; padding: 10px 12px; font-family: monospace; font-size: .82rem; }
 @media (max-width: 600px) { .nt-actions .btn { width: 100%; } .nt-banner { flex-wrap: wrap; } }
+.ca-fix { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; padding: 18px 22px; margin-bottom: 16px; border-radius: 16px; border: 2px solid var(--gold); background: rgba(212,175,55,.1); animation: ring 2.4s infinite; }
+.ca-fix > span { font-size: 1.8rem; }
+.ca-fix > div { flex: 1; min-width: 220px; } .ca-fix b { display: block; } .ca-fix small { color: #d6d3cb; }
+.ca-fixmsg { padding: 12px 16px; border-radius: 12px; background: #111; border: 1px solid var(--line-soft); }
