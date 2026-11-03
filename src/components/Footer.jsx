@@ -21,7 +21,6 @@ export default function Footer({ footer, social, brand }) {
         <div className="footer__bottom">
           <span>© {new Date().getFullYear()} {footer.copyright}</span>
           <Link to="/sponsor">Sponsor Us</Link>
-          <Link to="/admin">Admin</Link>
         </div>
       </div>
     </footer>

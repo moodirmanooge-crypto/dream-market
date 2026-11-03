@@ -18,7 +18,7 @@ import { runCompetitionMigrations, runSiteMigrations } from '../competitions/mig
 const NAV = [
   { group: 'Guud' },
   { id: 'dashboard', icon: '📊', label: 'Dashboard' },
-  { id: 'analytics', icon: '📈', label: 'Booqdayaasha' },
+  { id: 'analytics', icon: '📈', label: 'Booqdayaasha (Live counter)' },
   { id: 'competitions', icon: '🏆', label: 'Competitions' },
   { id: 'notifications', icon: '🔔', label: 'Notifications' },
   { id: 'account', icon: '👤', label: 'Akoonka (Login)' },
@@ -239,4 +239,3 @@ function Dashboard({ go }) {
     </div>
   )
 }
-

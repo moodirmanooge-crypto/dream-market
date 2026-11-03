@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
-import { collection, doc, onSnapshot, query, where } from 'firebase/firestore'
+import { collection, doc, getDoc, onSnapshot, query, setDoc, where } from 'firebase/firestore'
 import { db } from '../firebase'
-import { COL } from '../data/seed'
+import { COL, defaultSettings } from '../data/seed'
 import { dayKey } from '../hooks/useTrack'
 
 const RANGES = [[7, '7 maalmood'], [30, '30 maalmood'], [90, '90 maalmood']]
@@ -19,6 +19,48 @@ export function useTodayStats() {
     return () => { a(); b() }
   }, [])
   return s
+}
+
+// Admin sets the numbers the public "Live Website Traffic" counter starts from
+function PublicCounterSettings({ today, total }) {
+  const [v, setV] = useState(null)
+  const [msg, setMsg] = useState('')
+  useEffect(() => { getDoc(doc(db, COL.settings, 'site')).then((d) => setV({ ...defaultSettings.visitors, ...(d.data()?.visitors || {}) })).catch((e) => setMsg(e.message)) }, [])
+  if (!v) return null
+  const n = (x) => Number(x) || 0
+  const set = (k) => (e) => setV({ ...v, [k]: e.target.type === 'checkbox' ? e.target.checked : e.target.value === '' ? '' : Number(e.target.value) })
+  const save = async () => {
+    setMsg('…')
+    try {
+      const out = { ...v }; ['startTotalVisits', 'startTotalVisitors', 'addDailyVisitors', 'addDailyVisits'].forEach((k) => (out[k] = n(out[k])))
+      await setDoc(doc(db, COL.settings, 'site'), { visitors: out }, { merge: true })
+      setMsg('✓ Waa la kaydiyay — bogga hore isla markiiba wuu isbeddelay.')
+    } catch (e) { setMsg(e.message) }
+  }
+  const rows = [
+    ['startTotalVisits', 'Total Visits — ka bilow', 'tusaale 1000', n(total.visits)],
+    ['startTotalVisitors', 'Total Visitors — ka bilow', 'tusaale 600', n(total.visitors)],
+    ['addDailyVisitors', 'Visitors Today — ku dar maalin kasta', 'tusaale 50', n(today.visitors)],
+    ['addDailyVisits', 'Visits Today — ku dar maalin kasta', 'tusaale 80', n(today.visits)],
+  ]
+  return (
+    <div className="adm-card pcs">
+      <div className="pcs__head">
+        <div><h3>🌐 Tirada booqdayaasha ee website-ka (Live Website Traffic)</h3><p className="muted">Geli tirada ay ka bilaabanayaan — booqasho kasta oo cusub ayaa ku sii kordhinaysa si toos ah.</p></div>
+        <label className="adm-check"><input type="checkbox" checked={!!v.show} onChange={set('show')} /><span>Ka muuji bogga hore</span></label>
+      </div>
+      <div className="pcs__grid">
+        {rows.map(([k, label, ph, real]) => (
+          <label key={k} className="pcs__item">
+            <span>{label}</span>
+            <input type="number" min="0" placeholder={ph} value={v[k] ?? ''} onChange={set(k)} />
+            <small>Dhab: <b>{real.toLocaleString()}</b> → website-ka: <b className="gold-text">{(n(v[k]) + real).toLocaleString()}</b></small>
+          </label>
+        ))}
+      </div>
+      <div className="pcs__foot"><button className="btn btn--gold" onClick={save} disabled={msg === '…'}>💾 Kaydi</button>{msg && msg !== '…' && <span className={msg.startsWith('✓') ? 'ok' : 'err'}>{msg}</span>}</div>
+    </div>
+  )
 }
 
 export default function Analytics() {
@@ -69,6 +111,7 @@ export default function Analytics() {
         <div><h2>Booqdayaasha website-ka</h2><p>Live — tirooyinku isla markiiba way isbeddelaan. Admin-ka lama tiriyo.</p></div>
         <div className="an-range">{RANGES.map(([n, l]) => <button key={n} className={range === n ? 'is-on' : ''} onClick={() => setRange(n)}>{l}</button>)}</div>
       </div>
+      <PublicCounterSettings today={today} total={total} />
       {err && <p className="err">{err.includes('permission') ? 'Firestore rules: ku dar qaybta dreamStats ee firestore.rules → Publish.' : err}</p>}
 
       <div className="an-tiles">
