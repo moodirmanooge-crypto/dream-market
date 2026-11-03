@@ -1092,3 +1092,42 @@ a.guest { display: block; color: inherit; }
 .ca-fix > span { font-size: 1.8rem; }
 .ca-fix > div { flex: 1; min-width: 220px; } .ca-fix b { display: block; } .ca-fix small { color: #d6d3cb; }
 .ca-fixmsg { padding: 12px 16px; border-radius: 12px; background: #111; border: 1px solid var(--line-soft); }
+
+/* v15: prize tiles on competition cards / panel */
+.cp-card__stats div { text-align: center; }
+.cp-medal { display: block; font-size: 1.4rem; line-height: 1.2; }
+.cp-card__stats strong { font-size: 1.02rem; }
+.cpd-panel__prizes { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.cpd-panel__prizes div { text-align: center; padding: 14px 8px; border-radius: 14px; background: rgba(0,0,0,.45); border: 1px solid var(--line); }
+.cpd-panel__prizes div:first-child { border-color: var(--gold); background: linear-gradient(170deg, rgba(212,175,55,.2), rgba(0,0,0,.5)); }
+.cpd-panel__prizes span { display: block; font-size: 1.8rem; }
+.cpd-panel__prizes strong { display: block; font-family: var(--display); font-size: clamp(1.15rem, 2.4vw, 1.5rem); color: var(--gold-2); line-height: 1.15; }
+.cpd-panel__prizes small { color: var(--muted); font-size: .72rem; text-transform: uppercase; letter-spacing: .08em; font-weight: 700; }
+.cpd-panel__reg { color: var(--muted); font-size: .9rem; }
+.cpd-panel__reg b { color: var(--white); font-size: 1.05rem; }
+.acc { display: grid; gap: 4px; max-width: 640px; }
+.acc .btn { justify-self: start; margin-top: 8px; }
+.acc__note { font-size: .85rem; margin: 6px 0 0; }
+
+/* ============ Voice / audio player ============ */
+.ap { display: flex; align-items: center; gap: 18px; padding: 16px 18px; border-radius: 18px; border: 1px solid var(--line); background: linear-gradient(140deg, rgba(212,175,55,.1), rgba(0,0,0,.4)); }
+.ap__play { position: relative; flex-shrink: 0; width: 64px; height: 64px; border-radius: 50%; display: grid; place-items: center; background: linear-gradient(135deg, var(--gold-2), var(--gold-3)); color: #000; box-shadow: 0 12px 30px -10px rgba(212,175,55,.8); transition: transform .3s var(--ease); }
+.ap__play:hover { transform: scale(1.06); }
+.ap__ring { position: absolute; inset: 0; border-radius: 50%; border: 2px solid var(--gold); animation: ripple 2s infinite; pointer-events: none; }
+.ap__ring--2 { animation-delay: 1s; }
+.ap__main { flex: 1; min-width: 0; display: grid; gap: 8px; }
+.ap__title { font-size: .9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ap__wave { display: flex; align-items: center; gap: 2px; height: 46px; cursor: pointer; }
+.ap__wave i { flex: 1; border-radius: 3px; background: rgba(255,255,255,.18); transition: background .2s; transform-origin: center; }
+.ap__wave i.is-on { background: linear-gradient(var(--gold-2), var(--gold-3)); }
+.ap.is-playing .ap__wave i { animation: wave 1s ease-in-out infinite alternate; }
+.ap__row { display: flex; justify-content: space-between; align-items: center; gap: 10px; font-size: .8rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+.ap__ctrls { display: flex; gap: 6px; }
+.ap__ctrls button { padding: 4px 9px; border-radius: 8px; border: 1px solid var(--line-soft); font-size: .75rem; font-weight: 700; color: var(--white); }
+.ap__ctrls button:hover { border-color: var(--gold); color: var(--gold); }
+.featured__voice { position: absolute; left: 50%; top: 45%; transform: translate(-50%, -50%); z-index: 2; padding: 12px 22px; border-radius: 999px; background: rgba(0,0,0,.6); backdrop-filter: blur(6px); border: 1px solid var(--gold); font-weight: 800; color: var(--gold-2); }
+.modal__audio { display: grid; gap: 16px; padding: 22px 22px 0; }
+.modal__cover { position: relative; aspect-ratio: 16 / 8; border-radius: 16px; overflow: hidden; background: #000; }
+.modal__cover img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.upl__preview audio { width: min(420px, 90%); min-width: 240px; justify-self: center; }
+@media (max-width: 600px) { .ap { gap: 12px; padding: 12px; } .ap__play { width: 52px; height: 52px; } .ap__ctrls button { padding: 3px 6px; } }

@@ -27,7 +27,15 @@ service cloud.firestore {
     }
 
     // Admin accounts: edited only from Firebase Console (nobody can read them from the web)
-    match /admin-dream/{id} { allow read, write: if false; }
+    // Nobody can read admin passwords from the web. A logged-in admin may change only his own username/password.
+    match /admin-dream/{id} {
+      allow read, create, delete: if false;
+      allow update: if isDreamAdmin()
+        && get(dreamSessionPath()).data.adminId == id
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['username', 'password'])
+        && request.resource.data.username is string && request.resource.data.username.size() >= 3
+        && request.resource.data.password is string && request.resource.data.password.size() >= 4;
+    }
 
     // Login session (created only when username + password match admin-dream)
     match /dreamAdminSessions/{uid} {

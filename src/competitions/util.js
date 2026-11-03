@@ -28,6 +28,10 @@ export function compState(c, now = Date.now()) {
   return { phase, label, canRegister, regLabel, full, max, reg, target }
 }
 
+const MEDALS = ['🥇', '🥈', '🥉']
+// Top-3 prizes for cards / panels (falls back to the prize pool)
+export const topPrizes = (c) => (c.prizes || []).slice(0, 3).map((p, i) => ({ medal: MEDALS[i], place: p.place, prize: p.prize }))
+
 export const lines = (t = '') => String(t).split('\n').map((x) => x.trim()).filter(Boolean)
 
 // Leaderboard math: rank by profit %

@@ -13,7 +13,9 @@ export const SCHEMAS = {
     fields: [
       ['number', 'number', 'Episode #'], ['title', 'text', 'Title'], ['guest', 'text', 'Guest name'], ['role', 'text', 'Guest role'],
       ['guestImage', 'image', 'Guest photo'], ['category', 'text', 'Category'], ['duration', 'text', 'Duration', 'tusaale: 45 min'],
-      ['image', 'image', 'Thumbnail / slide image'], ['video', 'video', 'Video file (upload)'], ['youtube', 'url', 'YouTube link', 'haddii video la upload-gareyn waayo'],
+      ['image', 'image', 'Thumbnail / slide image'],
+      ['mediaMode', 'select', '🎧 / ▶ Sida website-ka loogu muujiyo', 'Voice = cod keliya (xitaa haddii aad video upload gareyso)', [{ value: 'video', label: '▶ Video (muuqaal + cod)' }, { value: 'audio', label: '🎧 Voice / Audio (cod keliya)' }]],
+      ['audio', 'audio', '🎧 Voice / Audio file', 'mp3, m4a, wav — ama video mp4'], ['video', 'video', '▶ Video file (upload)'], ['youtube', 'url', 'YouTube link', 'haddii video la upload-gareyn waayo'],
       ['description', 'textarea', 'Description'], ['featured', 'checkbox', '⭐ Featured episode (hal keliya)'], ['showInHero', 'checkbox', '🎞 Ku tus hero slider-ka'], ['hidden', 'checkbox', '🙈 Qari (website-ka ha ka muuqan)'],
     ],
   },
@@ -105,11 +107,11 @@ export default function CollectionManager({ name }) {
               <button type="button" onClick={() => setForm(null)}>✕</button>
             </div>
             <div className="adm-drawer__body">
-              {schema.fields.map(([k, type, label, hint]) => type === 'fit' ? (
+              {schema.fields.map(([k, type, label, hint, options]) => type === 'fit' ? (
                 <div key={k} className="adm-field"><span>{label}{hint && <em>{hint}</em>}</span>
                   <PhotoPositioner image={form.image} value={form[k]} onChange={(v) => setForm({ ...form, [k]: v })} /></div>
               ) : (
-                <Field key={k} label={label} hint={hint} type={type} value={form[k]} folder={name} onChange={(v) => setForm({ ...form, [k]: v })} />
+                <Field key={k} label={label} hint={hint} type={type} options={options} value={type === 'select' ? (form[k] || options?.[0]?.value) : form[k]} folder={name} onChange={(v) => setForm({ ...form, [k]: v })} />
               ))}
             </div>
             <div className="adm-drawer__foot">
@@ -130,7 +132,7 @@ export default function CollectionManager({ name }) {
               <b>{r.number ? `#${r.number} · ` : ''}{r.title || r.name}</b>
               <small>{[r.guest, r.role, r.focus, r.category, r.duration].filter(Boolean).join(' · ') || r.description || r.link || ''}</small>
               <div className="adm-tags">
-                {r.featured && <em>⭐ Featured</em>}{r.founder && <em>👑 Founder</em>}{r.showInHero && <em>🎞 Hero</em>}{(r.video || r.youtube) && <em>▶ Video</em>}{r.hidden && <em className="off">🙈 Qarsoon</em>}
+                {r.featured && <em>⭐ Featured</em>}{r.founder && <em>👑 Founder</em>}{r.showInHero && <em>🎞 Hero</em>}{(r.audio || (r.mediaMode === 'audio' && r.video)) ? <em>🎧 Audio</em> : (r.video || r.youtube) && <em>▶ Video</em>}{r.hidden && <em className="off">🙈 Qarsoon</em>}
               </div>
             </div>
             <div className="adm-item__btns">

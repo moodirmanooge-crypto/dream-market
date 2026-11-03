@@ -14,11 +14,14 @@ export default function VisitorCounter({ cfg }) {
     const b = onSnapshot(doc(db, COL.stats, 'total'), (d) => setTotal(d.data() || {}), () => {})
     return () => { a(); b() }
   }, [])
-  if (!cfg?.show || (!today && !total)) return null
+  if (!cfg?.show) return null
+  const n = (v) => Number(v) || 0
+  // admin-chosen starting numbers + the real counts (every new visit keeps adding)
   const items = [
-    [cfg.today, today?.visitors], [cfg.visitsToday, today?.visits],
-    [cfg.total, total?.visits], [cfg.totalVisitors, total?.visitors],
+    [cfg.today, n(cfg.addDailyVisitors) + n(today?.visitors)], [cfg.visitsToday, n(cfg.addDailyVisits) + n(today?.visits)],
+    [cfg.total, n(cfg.startTotalVisits) + n(total?.visits)], [cfg.totalVisitors, n(cfg.startTotalVisitors) + n(total?.visitors)],
   ]
+  if (!today && !total && !items.some(([, v]) => v)) return null
   return (
     <section className="container vc">
       <div className="vc__head"><span className="live-dot vc__dot" />{cfg.label}</div>

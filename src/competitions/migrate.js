@@ -31,3 +31,13 @@ export async function runCompetitionMigrations(force = false) {
   await setDoc(doc(db, COL.settings, 'site'), { migrations: { cashPrizesV1: true } }, { merge: true })
   return n
 }
+
+// Site-wide one-off fixes (run on every admin login; each one only changes old values)
+export async function runSiteMigrations() {
+  const ref = doc(db, COL.settings, 'site')
+  const s = (await getDoc(ref)).data() || {}
+  const patch = {}
+  const email = s.contact?.email
+  if (!email || email === 'hello@dreammarketpodcast.com') patch.contact = { email: 'dreammarketpodcast@gmail.com' }
+  if (Object.keys(patch).length) await setDoc(ref, patch, { merge: true })
+}

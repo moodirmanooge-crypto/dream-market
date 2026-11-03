@@ -9,8 +9,7 @@ const COUNTRIES = ['Somalia', 'Somaliland', 'Kenya', 'Ethiopia', 'Djibouti', 'Ug
 export const regId = (compId, email) => `${compId}_${email.trim().toLowerCase().replace(/[^a-z0-9]/g, '_')}`
 
 export default function JoinModal({ comp, onClose }) {
-  const platforms = (comp.platform || 'MT5').split(/[,/]/).map((p) => p.trim()).filter(Boolean)
-  const [f, setF] = useState({ fullName: '', email: '', country: '', whatsapp: '', telegram: '', xUsername: '', experience: EXPERIENCE[0], platform: platforms[0], accountId: '', agreed: false })
+  const [f, setF] = useState({ fullName: '', email: '', country: '', whatsapp: '', telegram: '', xUsername: '', experience: EXPERIENCE[0], accountId: '', agreed: false })
   const [state, setState] = useState('idle')
   const [err, setErr] = useState('')
   const set = (k) => (e) => setF({ ...f, [k]: e.target.type === 'checkbox' ? e.target.checked : e.target.value })
@@ -59,8 +58,7 @@ export default function JoinModal({ comp, onClose }) {
               <div className="field"><input required type="tel" placeholder=" " id="jw" value={f.whatsapp} onChange={set('whatsapp')} maxLength={30} /><label htmlFor="jw">WhatsApp number *</label></div>
               <div className="field"><input placeholder=" " id="jt" value={f.telegram} onChange={set('telegram')} maxLength={60} /><label htmlFor="jt">Telegram username</label></div>
               <div className="field"><input placeholder=" " id="jx" value={f.xUsername} onChange={set('xUsername')} maxLength={60} /><label htmlFor="jx">X (Twitter) username</label></div>
-              <div className="field field--select"><select id="jxp" value={f.experience} onChange={set('experience')}>{EXPERIENCE.map((x) => <option key={x}>{x}</option>)}</select><label htmlFor="jxp">Trading experience</label></div>
-              <div className="field field--select"><select id="jp" value={f.platform} onChange={set('platform')}>{platforms.map((x) => <option key={x}>{x}</option>)}</select><label htmlFor="jp">Trading platform</label></div>
+              <div className="field field--select jm__full"><select id="jxp" value={f.experience} onChange={set('experience')}>{EXPERIENCE.map((x) => <option key={x}>{x}</option>)}</select><label htmlFor="jxp">Trading experience</label></div>
               <div className="field jm__full"><input placeholder=" " id="ja" value={f.accountId} onChange={set('accountId')} maxLength={60} /><label htmlFor="ja">Account number / Competition ID (if you have one)</label></div>
             </div>
             <label className="jm__agree"><input type="checkbox" checked={f.agreed} onChange={set('agreed')} /><span>I have read and agree to the competition rules. One account per person — duplicate or fake entries are disqualified.</span></label>

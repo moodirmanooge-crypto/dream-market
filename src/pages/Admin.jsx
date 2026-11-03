@@ -10,9 +10,10 @@ import Inbox from '../admin/Inbox'
 import Analytics, { useTodayStats } from '../admin/Analytics'
 import CompetitionsAdmin from '../competitions/CompetitionsAdmin'
 import NotificationsPage from '../admin/NotificationsPage'
+import AccountPage from '../admin/AccountPage'
 import { useAdminAlerts } from '../admin/useAdminAlerts'
 import { permission, swReg } from '../admin/notify'
-import { runCompetitionMigrations } from '../competitions/migrate'
+import { runCompetitionMigrations, runSiteMigrations } from '../competitions/migrate'
 
 const NAV = [
   { group: 'Guud' },
@@ -20,9 +21,10 @@ const NAV = [
   { id: 'analytics', icon: '📈', label: 'Booqdayaasha' },
   { id: 'competitions', icon: '🏆', label: 'Competitions' },
   { id: 'notifications', icon: '🔔', label: 'Notifications' },
+  { id: 'account', icon: '👤', label: 'Akoonka (Login)' },
   { group: 'Bogga (Website content)' },
   { id: 'hero', icon: '🏠', label: 'Logo & Hero', keys: ['brand', 'hero'], help: 'Logo-ga, cinwaanka weyn, qoraalada, badhamada iyo sawirka hero-ga.' },
-  { id: 'ticker', icon: '📈', label: 'Ticker & Stats', keys: ['ticker', 'stats', 'visitors'], help: 'Qoraalada socda, tirooyinka iyo booqdayaasha bogga hore ka muuqda (Visitors → show: dami si aad u qariso).' },
+  { id: 'ticker', icon: '📈', label: 'Ticker & Stats', keys: ['ticker', 'stats', 'visitors'], help: 'Qoraalada socda, tirooyinka iyo booqdayaasha bogga hore. Visitors → Start Total Visits = tirada ay ka bilaabanayaan (tusaale 1000); Add Daily Visitors / Visits = inta lagu daro maalin kasta. Booqasho kasta oo dhab ah way sii kordhinaysaa.' },
   { id: 'sections', icon: '🔤', label: 'Cinwaanada qaybaha', keys: ['sections', 'categories'], help: 'Kicker, cinwaan iyo erayga dahabka ah ee qayb kasta + badhamada Categories (Forex, Finance…) ee Episodes.' },
   { id: 'about', icon: 'ℹ️', label: 'About', keys: ['about'], help: 'Qoraalka, sawirka, Mission/Vision/Values iyo timeline.' },
   { id: 'social', icon: '🔗', label: 'Social Media Links', keys: ['social'], help: 'Ku dheji link-ga buuxa (https://…) ee TikTok, Facebook, YouTube iyo kuwa kale. Kuwa madhan website-ka kama muuqdaan.' },
@@ -71,7 +73,7 @@ function Login({ onDone }) {
         <div className="adm-login__logo">DMP</div>
         <h1>Admin Panel</h1>
         <p>Dream Market Podcast</p>
-        <label className="adm-field"><span>Username</span><input autoFocus autoComplete="username" value={u} onChange={(e) => setU(e.target.value)} required /></label>
+        <label className="adm-field"><span>Email / Username</span><input autoFocus autoComplete="username" value={u} onChange={(e) => setU(e.target.value)} required /></label>
         <label className="adm-field"><span>Password</span>
           <div className="adm-pass"><input type={show ? 'text' : 'password'} autoComplete="current-password" value={p} onChange={(e) => setP(e.target.value)} required />
             <button type="button" onClick={() => setShow(!show)}>{show ? '🙈' : '👁'}</button></div>
@@ -90,7 +92,7 @@ function Panel({ admin, onLogout }) {
   const [bell, setBell] = useState(false)
   const { alerts, unread, clearUnread, toasts, dismiss } = useAdminAlerts(true)
   useEffect(() => { swReg().catch(() => {}); if (location.search) history.replaceState(null, '', '/admin') }, [])
-  useEffect(() => { runCompetitionMigrations().catch((e) => console.warn('[migrate]', e.message)) }, [])
+  useEffect(() => { runCompetitionMigrations().catch((e) => console.warn('[migrate]', e.message)); runSiteMigrations().catch((e) => console.warn('[migrate]', e.message)) }, [])
   useEffect(() => { try { sessionStorage.setItem('dmp-admin-tab', tab) } catch { /* ignore */ } window.scrollTo(0, 0) }, [tab])
   const item = NAV.find((n) => n.id === tab) || NAV[1]
 
@@ -132,6 +134,7 @@ function Panel({ admin, onLogout }) {
           {tab === 'analytics' && <Analytics />}
           {tab === 'competitions' && <CompetitionsAdmin />}
           {tab === 'notifications' && <NotificationsPage admin={admin} />}
+          {tab === 'account' && <AccountPage admin={admin} onLogout={onLogout} />}
           {item.keys && <SettingsEditor key={item.id} keys={item.keys} title={item.label} help={item.help} />}
           {item.col && <CollectionManager name={item.id} />}
           {item.inbox && <Inbox name={item.id} />}
@@ -236,3 +239,4 @@ function Dashboard({ go }) {
     </div>
   )
 }
+

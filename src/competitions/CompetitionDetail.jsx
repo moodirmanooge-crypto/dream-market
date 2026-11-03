@@ -11,7 +11,7 @@ import SubHeader from './SubHeader'
 import Countdown from './Countdown'
 import JoinModal from './JoinModal'
 import { StatusPill } from './CompCard'
-import { compState, fmtDate, lines, money, pctFmt, rankBoard } from './util'
+import { compState, fmtDate, lines, money, pctFmt, rankBoard, topPrizes } from './util'
 
 const SECTIONS = [['overview', 'Overview'], ['join', 'How to Join'], ['rules', 'Rules'], ['leaderboard', 'Leaderboard'], ['prizes', 'Prizes'], ['winners', 'Winners']]
 const MEDAL = ['🥇', '🥈', '🥉']
@@ -71,12 +71,10 @@ export default function CompetitionDetail() {
             </div>
             <div className="cpd-panel">
               <div className="cpd-panel__big"><small>Prize pool</small><strong className="gold-text">{c.prizePool || '—'}</strong></div>
-              <div className="cpd-panel__grid">
-                <div><strong>{st.max ? `${st.reg}/${st.max}` : st.reg}</strong><small>Participants</small></div>
-                <div><strong>{c.accountSize || '—'}</strong><small>Account size</small></div>
-                <div><strong>{c.entryFee || 'Free'}</strong><small>Entry fee</small></div>
-                <div><strong>{c.platform || '—'}</strong><small>Platform</small></div>
+              <div className="cpd-panel__prizes">
+                {topPrizes(c).map((p) => <div key={p.medal}><span>{p.medal}</span><strong>{p.prize}</strong><small>{p.place}</small></div>)}
               </div>
+              <div className="cpd-panel__reg"><b>{st.max ? `${st.reg} / ${st.max}` : st.reg}</b> traders registered</div>
               {st.max > 0 && <div className="cp-cap"><div className="cp-cap__bar"><i style={{ width: `${Math.min(100, (st.reg / st.max) * 100)}%` }} /></div><small>{Math.max(0, st.max - st.reg)} spots left</small></div>}
               {st.target ? <Countdown at={st.target.at} text={st.target.text} /> : <p className="cpd-ended">🏁 This competition has ended.</p>}
             </div>
@@ -90,7 +88,7 @@ export default function CompetitionDetail() {
             <h2>Overview</h2>
             <div className="cpd-facts">
               {[['Organizer', c.organizer], ['Sponsor', c.sponsor || '—'], ['Type', c.type], ['Mode', c.mode], ['Starts', fmtDate(c.start, true)], ['Ends', fmtDate(c.end, true)],
-                ['Registration deadline', fmtDate(c.regDeadline, true)], ['Entry fee', c.entryFee || 'Free'], ['Max participants', st.max || 'Unlimited'], ['Platform', c.platform], ['Account size', c.accountSize], ['Prize pool', c.prizePool]]
+                ['Registration deadline', fmtDate(c.regDeadline, true)], ['Entry fee', c.entryFee || 'Free'], ['Max participants', st.max || 'Unlimited'], ['Prize pool', c.prizePool]]
                 .filter(([, v]) => v).map(([l, v]) => <div key={l}><small>{l}</small><b>{v}</b></div>)}
             </div>
           </section>

@@ -1,6 +1,7 @@
 import { useMemo, useRef, useState } from 'react'
 import StudioScene from './StudioScene'
 import SectionHead from './SectionHead'
+import { epMedia } from './media'
 
 export default function Episodes({ episodes, onPlay, head, categories = [] }) {
   const norm = (c = '') => c.trim().toLowerCase()
@@ -54,7 +55,7 @@ export default function Episodes({ episodes, onPlay, head, categories = [] }) {
               <span className="ep__play">▶</span>
             </div>
             <div className="ep__body">
-              <span className="ep__cat">{e.category} · {e.duration}{(e.video || e.youtube) ? ' · ▶ Video' : ''}</span>
+              <span className="ep__cat">{e.category} · {e.duration}{{ audio: ' · 🎧 Audio', video: ' · ▶ Video', youtube: ' · ▶ Video' }[epMedia(e)?.kind] || ''}</span>
               <h3>{e.title}</h3>
               <p>with <b>{e.guest}</b></p>
             </div>

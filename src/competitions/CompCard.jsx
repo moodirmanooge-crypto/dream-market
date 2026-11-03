@@ -1,5 +1,5 @@
 import { Link, useNavigate } from 'react-router-dom'
-import { compState, fmtDate } from './util'
+import { compState, fmtDate, topPrizes } from './util'
 
 export function StatusPill({ st }) {
   return <span className={`cp-pill cp-pill--${st.canRegister ? 'open' : st.phase}`}>{st.phase === 'live' && <i className="live-dot" />}{st.canRegister ? st.regLabel : st.label}</span>
@@ -20,9 +20,7 @@ export default function CompCard({ c }) {
         <h3>{c.name}</h3>
         <p className="cp-card__dates">{fmtDate(c.start)} – {fmtDate(c.end)}</p>
         <div className="cp-card__stats">
-          <div><strong>{c.prizePool || '—'}</strong><small>Prize pool</small></div>
-          <div><strong>{c.accountSize || '—'}</strong><small>Account</small></div>
-          <div><strong>{c.entryFee || 'Free'}</strong><small>Entry</small></div>
+          {topPrizes(c).map((p) => <div key={p.medal}><span className="cp-medal">{p.medal}</span><strong>{p.prize}</strong><small>{p.place}</small></div>)}
         </div>
         {st.max > 0 && (
           <div className="cp-cap"><div className="cp-cap__bar"><i style={{ width: `${fill}%` }} /></div><small>{st.reg} / {st.max} traders</small></div>

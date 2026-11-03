@@ -17,7 +17,7 @@ export function inferType(key, value) {
 // One input of any type
 export function Field({ label, type, value, onChange, folder, hint, options = [], rows = 3 }) {
   let input
-  if (type === 'image' || type === 'video' || type === 'file') input = <Uploader kind={type} value={value} onChange={onChange} folder={folder} />
+  if (type === 'image' || type === 'video' || type === 'file' || type === 'audio') input = <Uploader kind={type} value={value} onChange={onChange} folder={folder} />
   else if (type === 'select') input = <select value={value ?? ''} onChange={(e) => onChange(e.target.value)}>{options.map((o) => <option key={o.value ?? o} value={o.value ?? o}>{o.label ?? o}</option>)}</select>
   else if (type === 'datetime') input = <input type="datetime-local" value={value ?? ''} onChange={(e) => onChange(e.target.value)} />
   else if (type === 'textarea') input = <textarea rows={rows} value={value ?? ''} onChange={(e) => onChange(e.target.value)} />

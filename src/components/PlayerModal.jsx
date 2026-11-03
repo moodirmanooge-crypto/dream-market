@@ -1,11 +1,8 @@
 import { useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import StudioScene from './StudioScene'
-
-function ytId(url = '') {
-  const m = url.match(/(?:youtu\.be\/|v=|embed\/|shorts\/)([\w-]{11})/)
-  return m ? m[1] : null
-}
+import AudioPlayer from './AudioPlayer'
+import { epMedia } from './media'
 
 export default function PlayerModal({ episode, onClose }) {
   useEffect(() => {
@@ -13,7 +10,7 @@ export default function PlayerModal({ episode, onClose }) {
     window.addEventListener('keydown', k)
     return () => window.removeEventListener('keydown', k)
   }, [onClose])
-  const id = episode && ytId(episode.youtube)
+  const m = episode && epMedia(episode)
   return (
     <AnimatePresence>
       {episode && (
@@ -21,11 +18,18 @@ export default function PlayerModal({ episode, onClose }) {
           <motion.div className="modal__box" initial={{ y: 60, scale: 0.95 }} animate={{ y: 0, scale: 1 }} exit={{ y: 40, opacity: 0 }}
             transition={{ type: 'spring', damping: 24, stiffness: 260 }} onClick={(e) => e.stopPropagation()}>
             <button className="modal__close" onClick={onClose} aria-label="Close">✕</button>
-            <div className="modal__video">
-              {episode.video ? <video src={episode.video} controls autoPlay playsInline poster={episode.image || undefined} />
-                : id ? <iframe src={`https://www.youtube.com/embed/${id}?autoplay=1`} title={episode.title} allow="autoplay; encrypted-media; picture-in-picture" allowFullScreen />
-                : <><StudioScene hue={225} /><p className="modal__soon">Video coming soon — stay tuned.</p></>}
-            </div>
+            {m?.kind === 'audio' ? (
+              <div className="modal__audio">
+                <div className="modal__cover">{episode.image ? <img src={episode.image} alt="" /> : <StudioScene hue={225} />}</div>
+                <AudioPlayer src={m.src} autoPlay />
+              </div>
+            ) : (
+              <div className="modal__video">
+                {m?.kind === 'video' ? <video src={m.src} controls autoPlay playsInline poster={episode.image || undefined} />
+                  : m?.kind === 'youtube' ? <iframe src={`https://www.youtube.com/embed/${m.id}?autoplay=1`} title={episode.title} allow="autoplay; encrypted-media; picture-in-picture" allowFullScreen />
+                  : <><StudioScene hue={225} /><p className="modal__soon">Coming soon — stay tuned.</p></>}
+              </div>
+            )}
             <div className="modal__info">
               <span className="chip">EP {episode.number} · {episode.category}</span>
               <h3>{episode.title}</h3>

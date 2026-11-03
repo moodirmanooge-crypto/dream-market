@@ -61,7 +61,9 @@ export const defaultSettings = {
       { year: '2026', text: 'Going international' },
     ],
   },
-  visitors: { show: true, label: 'Live Website Traffic', today: 'Visitors Today', visitsToday: 'Visits Today', total: 'Total Visits', totalVisitors: 'Total Visitors' },
+  visitors: { show: true, label: 'Live Website Traffic', today: 'Visitors Today', visitsToday: 'Visits Today', total: 'Total Visits', totalVisitors: 'Total Visitors',
+    // numbers the admin adds on top of the real counts (e.g. start Total Visits at 1000)
+    startTotalVisits: 0, startTotalVisitors: 0, addDailyVisitors: 0, addDailyVisits: 0 },
   notifications: { vapidKey: '' }, // Web Push key — Admin → 🔔 Notifications
   partnersCta: { text: "Want your brand in front of the region's sharpest business audience?", button: 'Partner With Us' },
   sponsor: {
@@ -112,7 +114,7 @@ export const defaultSettings = {
     privacy: 'No spam. Unsubscribe anytime.',
   },
   contact: {
-    email: 'hello@dreammarketpodcast.com',
+    email: 'dreammarketpodcast@gmail.com',
     phone: '+252 61 000 0000',
     location: 'Mogadishu · Nairobi · Dubai',
     newsletterLabel: 'Weekly newsletter — new episodes & market insights',
@@ -162,7 +164,7 @@ export const seed = {
       description: 'Compete with traders from Somalia, East Africa and the diaspora. Trade a demo account for one month — the top 3 traders by profit % win cash prizes.',
       organizer: 'Dream Market Podcast', sponsor: '', sponsorLogo: '', sponsorLink: '', banner: '',
       start: '2026-12-01T09:00', end: '2026-12-31T21:00', regDeadline: '2026-11-28T23:59',
-      entryFee: 'Free', maxParticipants: 100, registered: 0, mode: 'Demo', platform: 'MT5', accountSize: '$10,000', prizePool: '$500 Cash',
+      entryFee: 'Free', maxParticipants: 100, registered: 0, mode: 'Demo', accountSize: '', prizePool: '$500 Cash',
       howToJoin: 'Click "Join the Competition" and fill in the form.\nWait for approval — we confirm by email or WhatsApp.\nReceive your demo account login before the start date.\nTrade during the competition period and follow the live leaderboard.',
       rules: 'One account per person — multiple accounts are disqualified.\nRanking is based on profit % (not $ profit).\nMinimum 5 trades during the competition.\nNo copy trading, account sharing or manipulation.\nMaximum drawdown 10% — accounts above this are disqualified.\nDream Market Podcast decisions on winners are final.',
       prizes: [

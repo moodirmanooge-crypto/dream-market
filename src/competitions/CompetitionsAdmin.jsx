@@ -10,7 +10,7 @@ import { applyCashPrizes, isOldComp } from './migrate'
 const TYPES = ['Monthly', 'Sponsored', 'Championship']
 const BLANK = {
   name: '', type: 'Monthly', description: '', organizer: 'Dream Market Podcast', sponsor: '', sponsorLogo: '', sponsorLink: '', banner: '',
-  start: '', end: '', regDeadline: '', entryFee: 'Free', maxParticipants: 100, mode: 'Demo', platform: 'MT5', accountSize: '$10,000', prizePool: '',
+  start: '', end: '', regDeadline: '', entryFee: 'Free', maxParticipants: 100, mode: 'Demo', accountSize: '', prizePool: '',
   howToJoin: seed.competitions[0].howToJoin, rules: seed.competitions[0].rules, prizes: seed.competitions[0].prizes, winners: [],
   registrationOpen: true, featured: false, hidden: false,
 }
@@ -171,7 +171,7 @@ function Editor({ comp, onDone, setErr }) {
           {F('start', 'datetime', 'Start Date')}{F('end', 'datetime', 'End Date')}{F('regDeadline', 'datetime', 'Registration Deadline')}
           {F('entryFee', 'text', 'Entry Fee', 'Free ama $20')}{F('maxParticipants', 'number', 'Maximum Participants', '0 = xad la\'aan')}
           {F('mode', 'select', 'Demo / Live', '', { options: ['Demo', 'Live'] })}
-          {F('platform', 'text', 'Trading Platform', 'MT5, MT4, cTrader')}{F('accountSize', 'text', 'Account Size', '$5K, $10K…')}{F('prizePool', 'text', 'Prize Pool', '$15,000')}
+          {F('accountSize', 'text', 'Account Size (ikhtiyaari)', '$5K, $10K…')}{F('prizePool', 'text', 'Prize Pool', '$500 Cash')}
         </div>
       </div>
 
@@ -215,8 +215,8 @@ function Participants({ comp, back, toBoard }) {
     currentBalance: Number(String(comp.accountSize).replace(/[^0-9.]/g, '')) || 10000, trades: 0, updatedAt: serverTimestamp(),
   }).catch((e) => setErr(e.message))
   const csv = () => {
-    const head = ['Full name', 'Email', 'Country', 'WhatsApp', 'Telegram', 'X', 'Experience', 'Platform', 'Account ID', 'Status', 'Registered']
-    const body = rows.map((r) => [r.fullName, r.email, r.country, r.whatsapp, r.telegram, r.xUsername, r.experience, r.platform, r.accountId, r.status, r.createdAt?.toDate?.().toLocaleString() || ''].map(csvCell).join(','))
+    const head = ['Full name', 'Email', 'Country', 'WhatsApp', 'Telegram', 'X', 'Experience', 'Account ID', 'Status', 'Registered']
+    const body = rows.map((r) => [r.fullName, r.email, r.country, r.whatsapp, r.telegram, r.xUsername, r.experience, r.accountId, r.status, r.createdAt?.toDate?.().toLocaleString() || ''].map(csvCell).join(','))
     const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob(['﻿' + head.join(',') + '\n' + body.join('\n')], { type: 'text/csv' }))
     a.download = `${comp.name.replace(/\W+/g, '-')}-participants.csv`; a.click()
   }
@@ -245,7 +245,7 @@ function Participants({ comp, back, toBoard }) {
               <a href={`mailto:${r.email}`}>✉ {r.email}</a>
               {r.whatsapp && <a href={wa(r.whatsapp)} target="_blank" rel="noreferrer">💬 {r.whatsapp}</a>}
               {r.telegram && <span>✈ {r.telegram}</span>}{r.xUsername && <span>𝕏 {r.xUsername}</span>}
-              <span>🌍 {r.country}</span><span>📈 {r.experience}</span><span>🖥 {r.platform}</span>{r.accountId && <span>#️⃣ {r.accountId}</span>}
+              <span>🌍 {r.country}</span><span>📈 {r.experience}</span>{r.accountId && <span>#️⃣ {r.accountId}</span>}
             </div>
             <div className="adm-item__btns">
               {r.status !== 'approved' && <button onClick={() => setStatus(r, 'approved')}>✅ Oggolow</button>}
