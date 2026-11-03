@@ -86,6 +86,8 @@ service cloud.firestore {
     }
     // Leaderboard (public, admin writes)
     match /dreamCompBoard/{id} { allow read: if true; allow write: if isDreamAdmin(); }
+    // Admin devices that receive push notifications
+    match /dreamAdminTokens/{id} { allow read, write: if isDreamAdmin(); }
     // ---------------- END DREAM ----------------
 
   }

@@ -9,12 +9,16 @@ import CollectionManager from '../admin/CollectionManager'
 import Inbox from '../admin/Inbox'
 import Analytics, { useTodayStats } from '../admin/Analytics'
 import CompetitionsAdmin from '../competitions/CompetitionsAdmin'
+import NotificationsPage from '../admin/NotificationsPage'
+import { useAdminAlerts } from '../admin/useAdminAlerts'
+import { permission, swReg } from '../admin/notify'
 
 const NAV = [
   { group: 'Guud' },
   { id: 'dashboard', icon: '📊', label: 'Dashboard' },
   { id: 'analytics', icon: '📈', label: 'Booqdayaasha' },
   { id: 'competitions', icon: '🏆', label: 'Competitions' },
+  { id: 'notifications', icon: '🔔', label: 'Notifications' },
   { group: 'Bogga (Website content)' },
   { id: 'hero', icon: '🏠', label: 'Logo & Hero', keys: ['brand', 'hero'], help: 'Logo-ga, cinwaanka weyn, qoraalada, badhamada iyo sawirka hero-ga.' },
   { id: 'ticker', icon: '📈', label: 'Ticker & Stats', keys: ['ticker', 'stats', 'visitors'], help: 'Qoraalada socda, tirooyinka iyo booqdayaasha bogga hore ka muuqda (Visitors → show: dami si aad u qariso).' },
@@ -80,8 +84,11 @@ function Login({ onDone }) {
 }
 
 function Panel({ admin, onLogout }) {
-  const [tab, setTab] = useState(() => sessionStorage.getItem('dmp-admin-tab') || 'dashboard')
+  const [tab, setTab] = useState(() => new URLSearchParams(location.search).get('tab') || sessionStorage.getItem('dmp-admin-tab') || 'dashboard')
   const [menu, setMenu] = useState(false)
+  const [bell, setBell] = useState(false)
+  const { alerts, unread, clearUnread, toasts, dismiss } = useAdminAlerts(true)
+  useEffect(() => { swReg().catch(() => {}); if (location.search) history.replaceState(null, '', '/admin') }, [])
   useEffect(() => { try { sessionStorage.setItem('dmp-admin-tab', tab) } catch { /* ignore */ } window.scrollTo(0, 0) }, [tab])
   const item = NAV.find((n) => n.id === tab) || NAV[1]
 
@@ -105,16 +112,33 @@ function Panel({ admin, onLogout }) {
         <header className="adm-top">
           <button className="adm-burger" onClick={() => setMenu(true)} aria-label="Menu">☰</button>
           <b>{item.icon} {item.label}</b>
+          <div className="nt-bellwrap">
+            <button className={`nt-bell ${unread ? 'has-new' : ''}`} onClick={() => { setBell(!bell); clearUnread() }} aria-label="Notifications">🔔{unread > 0 && <i>{unread}</i>}</button>
+            {bell && (
+              <div className="nt-drop" onMouseLeave={() => setBell(false)}>
+                <div className="nt-drop__head"><b>Ogeysiisyada</b><button onClick={() => { setTab('notifications'); setBell(false) }}>⚙</button></div>
+                {permission() !== 'granted' && <button className="nt-drop__enable" onClick={() => { setTab('notifications'); setBell(false) }}>🔔 Shid notifications qalabkan →</button>}
+                {alerts.length === 0 && <p className="muted">Wax cusub ma jiraan.</p>}
+                {alerts.map((a) => <button key={a.id} className="nt-drop__item" onClick={() => { setTab(a.tab); setBell(false) }}><b>{a.title}</b><small>{a.body}</small><em>{new Date(a.at).toLocaleTimeString()}</em></button>)}
+              </div>
+            )}
+          </div>
           <a className="btn btn--ghost btn--sm" href="/" target="_blank" rel="noreferrer">↗ Fiiri website-ka</a>
         </header>
         <div className="adm-content">
           {tab === 'dashboard' && <Dashboard go={setTab} />}
           {tab === 'analytics' && <Analytics />}
           {tab === 'competitions' && <CompetitionsAdmin />}
+          {tab === 'notifications' && <NotificationsPage admin={admin} />}
           {item.keys && <SettingsEditor key={item.id} keys={item.keys} title={item.label} help={item.help} />}
           {item.col && <CollectionManager name={item.id} />}
           {item.inbox && <Inbox name={item.id} />}
         </div>
+      </div>
+      <div className="nt-toasts">
+        {toasts.map((t) => (
+          <button key={t.id} className="nt-toast" onClick={() => { setTab(t.tab); dismiss(t.id) }}><b>{t.title}</b><small>{t.body}</small></button>
+        ))}
       </div>
     </div>
   )
@@ -174,6 +198,7 @@ function Dashboard({ go }) {
   return (
     <div>
       <div className="adm-pagehead"><div><h2>Ku soo dhawoow 👋</h2><p>Halkan ka maamul dhammaan website-ka Dream Market Podcast.</p></div></div>
+      {permission() !== 'granted' && <button className="nt-banner" onClick={() => go('notifications')}><span>🔔</span><div><b>Shid notifications</b><small>Hel ogeysiis + dhawaaq marka qof isku diiwaangeliyo tartan ama fariin soo diro — mobile, tablet iyo laptop.</small></div><em>Shid →</em></button>}
       <button className="an-dash" onClick={() => go('analytics')}>
         <div><small>👥 Booqdayaal maanta</small><strong>{(vis.today?.visitors || 0).toLocaleString()}</strong></div>
         <div><small>🔁 Jeer la soo galay maanta</small><strong>{(vis.today?.visits || 0).toLocaleString()}</strong></div>

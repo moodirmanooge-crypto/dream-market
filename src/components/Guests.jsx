@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom'
 import SectionHead from './SectionHead'
 import { initials } from './Featured'
 import { photoStyle } from './photoFit'
@@ -7,7 +8,7 @@ export default function Guests({ guests, head }) {
   const loop = guests.length < 6 ? [...guests, ...guests, ...guests, ...guests] : [...guests, ...guests]
   return (
     <section id="guests" className="section">
-      <div className="container"><SectionHead {...head} /></div>
+      <div className="container guests__head"><SectionHead {...head} />{head.button && <Link to="/sponsor#form" className="btn btn--gold btn--lg" data-reveal>{head.button}</Link>}</div>
       <div className="guests">
         <div className="guests__track" style={{ animationDuration: `${Math.max(loop.length * 3, 20)}s` }}>
           {loop.map((g, i) => {

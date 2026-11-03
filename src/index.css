@@ -950,7 +950,7 @@ a.guest { display: block; color: inherit; }
 .cpd-rules { margin: 0; padding: 0; list-style: none; display: grid; gap: 10px; }
 .cpd-rules li { position: relative; padding: 14px 16px 14px 46px; border-radius: 12px; background: var(--card); border: 1px solid var(--line-soft); }
 .cpd-rules li::before { content: '!'; position: absolute; left: 14px; top: 13px; width: 22px; height: 22px; border-radius: 50%; display: grid; place-items: center; font-size: .78rem; font-weight: 900; border: 1px solid var(--gold); color: var(--gold); }
-.cpd-prizes { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 14px; }
+.cpd-prizes { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px; }
 .cpd-prize { text-align: center; padding: 24px 16px; border-radius: 18px; border: 1px solid var(--line-soft); background: var(--card); display: grid; gap: 6px; }
 .cpd-prize.is-top { border-color: var(--gold); background: linear-gradient(170deg, rgba(212,175,55,.14), transparent 60%), var(--card); }
 .cpd-prize span { font-size: 2.2rem; }
@@ -1043,3 +1043,48 @@ a.guest { display: block; color: inherit; }
   .cd__parts strong { font-size: 1.4rem; }
   .sub-links { display: none; }
 }
+
+/* v13: advertise CTA + join buttons */
+.guests__head { display: flex; justify-content: space-between; align-items: flex-end; gap: 20px; flex-wrap: wrap; }
+.guests__head .section-head { margin-bottom: 48px; }
+.guests__head > .btn { margin-bottom: 52px; animation: ring 2.4s infinite; }
+.cp-card__join { margin-top: auto; letter-spacing: .08em; animation: ring 2.4s infinite; }
+@media (max-width: 600px) { .guests__head > .btn { width: 100%; margin-top: -24px; } }
+
+/* ============ Admin notifications ============ */
+.nt-bellwrap { position: relative; }
+.nt-bell { position: relative; width: 40px; height: 40px; border-radius: 12px; border: 1px solid var(--line); font-size: 1.1rem; }
+.nt-bell.has-new { animation: bellshake 1s ease-in-out infinite; border-color: var(--gold); }
+@keyframes bellshake { 0%, 50%, 100% { transform: rotate(0); } 10%, 30% { transform: rotate(-14deg); } 20%, 40% { transform: rotate(14deg); } }
+.nt-bell i { position: absolute; top: -6px; right: -6px; min-width: 20px; height: 20px; padding: 0 5px; border-radius: 10px; background: #ff4d4d; color: #fff; font-style: normal; font-size: .72rem; font-weight: 900; display: grid; place-items: center; }
+.nt-drop { position: absolute; right: 0; top: 48px; width: min(360px, 88vw); max-height: 70vh; overflow-y: auto; z-index: 90; padding: 10px; border-radius: 16px; border: 1px solid var(--line); background: #111; box-shadow: 0 30px 60px rgba(0,0,0,.7); display: grid; gap: 6px; }
+.nt-drop__head { display: flex; justify-content: space-between; align-items: center; padding: 4px 6px 8px; border-bottom: 1px solid var(--line-soft); }
+.nt-drop__head button { width: 30px; height: 30px; border-radius: 8px; border: 1px solid var(--line-soft); }
+.nt-drop__enable { padding: 10px 12px; border-radius: 10px; background: rgba(212,175,55,.12); color: var(--gold); font-weight: 800; text-align: left; }
+.nt-drop__item { display: grid; gap: 2px; text-align: left; padding: 10px 12px; border-radius: 10px; border: 1px solid var(--line-soft); background: #0b0b0b; }
+.nt-drop__item:hover { border-color: var(--gold); }
+.nt-drop__item small { color: #d6d3cb; }
+.nt-drop__item em { font-style: normal; color: var(--muted); font-size: .72rem; }
+.nt-drop .muted { margin: 8px 6px; }
+.nt-toasts { position: fixed; right: 18px; bottom: 18px; z-index: 200; display: grid; gap: 10px; width: min(380px, calc(100vw - 36px)); }
+.nt-toast { display: grid; gap: 4px; text-align: left; padding: 16px 18px; border-radius: 16px; border: 1px solid var(--gold); background: linear-gradient(140deg, #1d180a, #0e0e0e); box-shadow: 0 20px 50px rgba(0,0,0,.7), 0 0 0 4px rgba(212,175,55,.12); animation: toastIn .5s var(--ease); }
+.nt-toast small { color: #d6d3cb; }
+@keyframes toastIn { from { opacity: 0; transform: translateY(30px) scale(.95); } }
+.nt-banner { width: 100%; display: flex; align-items: center; gap: 16px; text-align: left; padding: 18px 22px; margin-bottom: 16px; border-radius: 16px; border: 1px dashed var(--gold); background: rgba(212,175,55,.08); }
+.nt-banner > span { font-size: 1.8rem; animation: bellshake 1.6s ease-in-out infinite; }
+.nt-banner div { flex: 1; } .nt-banner b { display: block; } .nt-banner small { color: var(--muted); }
+.nt-banner em { font-style: normal; color: var(--gold); font-weight: 800; white-space: nowrap; }
+.nt-status { display: grid; gap: 16px; }
+.nt-status > div:first-child { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 18px; }
+.nt-status small { color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: .1em; font-size: .72rem; width: 100%; }
+.nt-status b { font-size: 1.15rem; }
+.nt-status em { font-style: normal; color: #3ddc84; font-weight: 700; font-size: .85rem; }
+.nt-actions { display: flex; flex-wrap: wrap; gap: 10px; }
+.nt-note { margin: 0; font-size: .88rem; }
+.nt-this { font-style: normal; font-size: .72rem; color: #3ddc84; margin-left: 6px; }
+.nt-setup ol { margin: 0; padding-left: 20px; display: grid; gap: 16px; }
+.nt-setup li { line-height: 1.6; }
+.nt-setup pre { background: #050505; border: 1px solid var(--line-soft); border-radius: 10px; padding: 12px 14px; margin: 8px 0; font-size: .85rem; overflow-x: auto; color: var(--gold-2); }
+.nt-key { display: flex; gap: 8px; margin-top: 8px; }
+.nt-key input { flex: 1; min-width: 0; padding: 10px 12px; font-family: monospace; font-size: .82rem; }
+@media (max-width: 600px) { .nt-actions .btn { width: 100%; } .nt-banner { flex-wrap: wrap; } }

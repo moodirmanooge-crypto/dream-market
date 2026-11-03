@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { compState, fmtDate } from './util'
 
 export function StatusPill({ st }) {
@@ -7,6 +7,7 @@ export function StatusPill({ st }) {
 
 export default function CompCard({ c }) {
   const st = compState(c)
+  const nav = useNavigate()
   const fill = st.max ? Math.min(100, (st.reg / st.max) * 100) : 0
   return (
     <Link to={`/competitions/${c.id}`} className="cp-card">
@@ -27,7 +28,9 @@ export default function CompCard({ c }) {
           <div className="cp-cap"><div className="cp-cap__bar"><i style={{ width: `${fill}%` }} /></div><small>{st.reg} / {st.max} traders</small></div>
         )}
         {c.sponsor && <p className="cp-card__sponsor">Sponsored by <b>{c.sponsor}</b></p>}
-        <span className="cp-card__cta">{st.canRegister ? 'Join now →' : st.phase === 'ended' ? 'See results →' : 'View details →'}</span>
+        {st.canRegister
+          ? <button type="button" className="btn btn--gold btn--full cp-card__join" onClick={(e) => { e.preventDefault(); nav(`/competitions/${c.id}?join=1`) }}>🏆 JOIN NOW</button>
+          : <span className="cp-card__cta">{st.phase === 'ended' ? 'See results →' : 'View details →'}</span>}
       </div>
     </Link>
   )

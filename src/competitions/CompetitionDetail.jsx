@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { Link, useParams } from 'react-router-dom'
+import { Link, useParams, useSearchParams } from 'react-router-dom'
 import { collection, onSnapshot, query, where } from 'firebase/firestore'
 import { db } from '../firebase'
 import { COL } from '../data/seed'
@@ -23,6 +23,7 @@ export default function CompetitionDetail() {
   const c = comps.find((x) => x.id === id)
   const [board, setBoard] = useState([])
   const [join, setJoin] = useState(false)
+  const [params, setParams] = useSearchParams()
   const [, tick] = useState(0)
   useTrack('competition')
   useEffect(() => { window.scrollTo(0, 0) }, [id])
@@ -33,6 +34,10 @@ export default function CompetitionDetail() {
     return onSnapshot(query(collection(db, COL.board), where('compId', '==', id)), (q) => setBoard(q.docs.map((d) => ({ id: d.id, ...d.data() }))), () => {})
   }, [id])
   const ranked = useMemo(() => rankBoard(board), [board])
+  // ?join=1 (from the "Join now" buttons) opens the registration form directly
+  useEffect(() => {
+    if (c && params.get('join') === '1' && compState(c).canRegister) { setJoin(true); params.delete('join'); setParams(params, { replace: true }) }
+  }, [c, params, setParams])
 
   if (!c) {
     return (<><SubHeader brand={s.brand} /><main className="cp-page container cp-missing"><h1>Competition not found</h1><Link to="/competitions" className="btn btn--gold">← All competitions</Link></main></>)
