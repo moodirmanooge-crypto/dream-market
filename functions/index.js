@@ -50,9 +50,14 @@ exports.dmpNewRegistration = onDocumentCreated('dreamCompRegs/{id}', (e) => {
   const d = e.data ? e.data.data() : {}
   return notifyAdmins({
     title: '🏆 New competition registration',
-    body: `${d.fullName || ''}${d.country ? ` (${d.country})` : ''} joined ${d.compName || 'a competition'}`,
+    body: `${d.fullName || ''}${d.country ? ` (${d.country})` : ''} — ${d.email || ''} joined ${d.compName || 'a competition'}`,
     tag: `reg-${e.params.id}`, tab: 'competitions',
   })
+})
+
+exports.dmpLuckyNumber = onDocumentCreated('dreamLuckyNumbers/{id}', (e) => {
+  const d = e.data ? e.data.data() : {}
+  return notifyAdmins({ title: '🍀 Lucky number picked', body: `${d.name || ''} chose #${d.number}`, tag: `lucky-${e.params.id}`, tab: 'competitions' })
 })
 
 exports.dmpNewMessage = onDocumentCreated('dreamMessages/{id}', (e) => {

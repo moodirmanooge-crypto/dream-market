@@ -10,10 +10,13 @@ import Footer from '../components/Footer'
 import SubHeader from './SubHeader'
 import Countdown from './Countdown'
 import JoinModal from './JoinModal'
+import WinnersCelebration from './WinnersCelebration'
+import ParticipantsWall from './ParticipantsWall'
+import { getMyReg } from './participants'
 import { StatusPill } from './CompCard'
 import { compState, fmtDate, lines, money, pctFmt, rankBoard, topPrizes } from './util'
 
-const SECTIONS = [['overview', 'Overview'], ['join', 'How to Join'], ['rules', 'Rules'], ['leaderboard', 'Leaderboard'], ['prizes', 'Prizes'], ['winners', 'Winners']]
+const SECTIONS = [['overview', 'Overview'], ['join', 'How to Join'], ['participants', 'Participants'], ['rules', 'Rules'], ['leaderboard', 'Leaderboard'], ['prizes', 'Prizes'], ['winners', 'Winners']]
 const MEDAL = ['🥇', '🥈', '🥉']
 
 export default function CompetitionDetail() {
@@ -22,7 +25,9 @@ export default function CompetitionDetail() {
   const comps = useCollection('competitions', s.seeded)
   const c = comps.find((x) => x.id === id)
   const [board, setBoard] = useState([])
-  const [join, setJoin] = useState(false)
+  const [join, setJoin] = useState(false) // false | 'form' | 'lucky'
+  const [myReg, setMyReg] = useState(null)
+  useEffect(() => { setMyReg(getMyReg(id)) }, [id, join])
   const [params, setParams] = useSearchParams()
   const [, tick] = useState(0)
   useTrack('competition')
@@ -36,7 +41,7 @@ export default function CompetitionDetail() {
   const ranked = useMemo(() => rankBoard(board), [board])
   // ?join=1 (from the "Join now" buttons) opens the registration form directly
   useEffect(() => {
-    if (c && params.get('join') === '1' && compState(c).canRegister) { setJoin(true); params.delete('join'); setParams(params, { replace: true }) }
+    if (c && params.get('join') === '1' && compState(c).canRegister) { setJoin('form'); params.delete('join'); setParams(params, { replace: true }) }
   }, [c, params, setParams])
 
   if (!c) {
@@ -44,8 +49,12 @@ export default function CompetitionDetail() {
   }
   const st = compState(c)
   const go = (k) => document.getElementById(k)?.scrollIntoView({ behavior: 'smooth' })
-  const joinBtn = (big) => st.canRegister
-    ? <button className={`btn btn--gold ${big ? 'btn--xl' : 'btn--sm'}`} onClick={() => setJoin(true)}>JOIN THE COMPETITION →</button>
+  const joinBtn = (big) => myReg?.regId
+    ? (myReg.lucky
+      ? <span className={`btn btn--ghost ${big ? 'btn--lg' : 'btn--sm'} cpd-mine`}>✓ Registered · 🍀 #{myReg.lucky}</span>
+      : st.phase !== 'ended' && <button className={`btn btn--gold ${big ? 'btn--xl' : 'btn--sm'}`} onClick={() => setJoin('lucky')}>🎲 PICK YOUR LUCKY NUMBER →</button>)
+    : st.canRegister
+    ? <button className={`btn btn--gold ${big ? 'btn--xl' : 'btn--sm'}`} onClick={() => setJoin('form')}>JOIN THE COMPETITION →</button>
     : <span className={`btn btn--ghost ${big ? 'btn--lg' : 'btn--sm'} is-disabled`}>{st.regLabel}</span>
 
   return (
@@ -53,6 +62,7 @@ export default function CompetitionDetail() {
       <div className="noise" aria-hidden />
       <SubHeader brand={s.brand} right={<span className="cp-navcta">{joinBtn(false)}</span>} />
       <main className="cp-page">
+        <WinnersCelebration comp={c} />
         <section className="cpd-hero">
           {c.banner && <img className="cpd-hero__bg" src={c.banner} alt="" />}
           <div className="hero__bg"><div className="orb orb--1" /><div className="grid-lines" /></div>
@@ -98,6 +108,8 @@ export default function CompetitionDetail() {
             <ol className="cpd-steps">{lines(c.howToJoin).map((x, i) => <li key={i}><span>{i + 1}</span><p>{x}</p></li>)}</ol>
             <div className="cpd-cta">{joinBtn(true)}</div>
           </section>
+
+          <ParticipantsWall comp={c} myRegId={myReg?.regId} />
 
           <section id="rules" className="cpd-sec">
             <h2>Rules & Requirements</h2>
@@ -159,7 +171,7 @@ export default function CompetitionDetail() {
         </div>
       </main>
       <Footer footer={s.footer} social={s.social} brand={s.brand} />
-      {join && <JoinModal comp={c} onClose={() => setJoin(false)} />}
+      {join && <JoinModal comp={c} startAtLucky={join === 'lucky'} onClose={() => setJoin(false)} />}
     </>
   )
 }

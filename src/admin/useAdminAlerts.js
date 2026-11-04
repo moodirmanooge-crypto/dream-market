@@ -6,7 +6,8 @@ import { ring, showLocal } from './notify'
 
 // Everything the admin is alerted about (same tags as the Cloud Function, so a device never shows doubles)
 export const SOURCES = [
-  { key: 'regs', col: COL.regs, tab: 'competitions', tag: 'reg-', title: () => '🏆 New competition registration', body: (d) => `${d.fullName || ''}${d.country ? ` (${d.country})` : ''} joined ${d.compName || 'a competition'}` },
+  { key: 'regs', col: COL.regs, tab: 'competitions', tag: 'reg-', title: () => '🏆 New competition registration', body: (d) => `${d.fullName || ''}${d.country ? ` (${d.country})` : ''} — ${d.email || ''} joined ${d.compName || 'a competition'}` },
+  { key: 'lucky', col: COL.lucky, tab: 'competitions', tag: 'lucky-', title: () => '🍀 Lucky number picked', body: (d) => `${d.name || ''} chose #${d.number}` },
   { key: 'messages', col: COL.messages, tab: 'messages', tag: 'msg-', title: (d) => (d.type === 'Sponsorship' ? '💼 New sponsorship request' : '✉️ New message'), body: (d) => `${d.name || ''}: ${String(d.message || '').slice(0, 90)}` },
   { key: 'subscribers', col: COL.subscribers, tab: 'subscribers', tag: 'sub-', title: () => '📬 New newsletter signup', body: (d) => `${d.name ? d.name + ' — ' : ''}${d.email || ''}` },
 ]

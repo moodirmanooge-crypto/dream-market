@@ -196,4 +196,6 @@ export const COL = {
   competitions: 'dreamCompetitions',
   regs: 'dreamCompRegs',
   board: 'dreamCompBoard',
+  compPublic: 'dreamCompPublic',
+  lucky: 'dreamLuckyNumbers',
 }

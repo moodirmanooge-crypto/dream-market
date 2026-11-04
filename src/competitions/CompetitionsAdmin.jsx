@@ -205,18 +205,56 @@ function Participants({ comp, back, toBoard }) {
   rows.forEach((r) => (counts[r.status] = (counts[r.status] || 0) + 1))
   const shown = rows.filter((r) => (filter === 'all' || r.status === filter) && (!q || JSON.stringify(r).toLowerCase().includes(q.toLowerCase())))
 
-  const setStatus = (r, status) => updateDoc(doc(db, COL.regs, r.id), { status, reviewedAt: serverTimestamp() }).catch((e) => setErr(e.message))
+  const setStatus = async (r, status) => {
+    try {
+      const b = writeBatch(db)
+      b.update(doc(db, COL.regs, r.id), { status, reviewedAt: serverTimestamp() })
+      // rejected people disappear from the public participants wall; approved ones come back
+      if (status === 'rejected') b.delete(doc(db, COL.compPublic, r.id))
+      else b.set(doc(db, COL.compPublic, r.id), { compId: comp.id, name: r.fullName, country: r.country || '', photo: r.photo || '', uid: r.uid || '', ...(r.luckyNumber ? { luckyNumber: r.luckyNumber } : {}), createdAt: r.createdAt || serverTimestamp() })
+      await b.commit()
+    } catch (e) { setErr(e.message) }
+  }
+
+  // ---------- winners (1st / 2nd / 3rd) ----------
+  const winners = comp.winners || []
+  const PLACES = ['1st Place', '2nd Place', '3rd Place']
+  const winnerFrom = (r, i) => ({ regId: r.id, place: PLACES[i], name: r.fullName, country: r.country || '', photo: r.photo || '', result: r.luckyNumber ? `Lucky #${r.luckyNumber}` : '', prize: comp.prizes?.[i]?.prize || '', certificate: '' })
+  const saveWinners = (list) => updateDoc(doc(db, COL.competitions, comp.id), { winners: list }).catch((e) => setErr(e.message))
+  const setWinner = (r, i) => {
+    const list = [0, 1, 2].map((k) => (winners[k]?.regId === r.id ? null : winners[k] || null))
+    list[i] = winnerFrom(r, i)
+    saveWinners(list.map((w, k) => w || { place: PLACES[k], name: '' }).filter((w, k) => w.name || k < 3))
+  }
+  const placeOf = (r) => winners.findIndex((w) => w?.regId === r.id)
+  const randomDraw = () => {
+    const pool = rows.filter((r) => r.status !== 'rejected')
+    if (pool.length < 3) return setErr('Ugu yaraan 3 qof ayaa loo baahan yahay.')
+    if (!confirm('Si random ah u dooro 3 guuleyste? (kuwii hore waa la beddelayaa)')) return
+    const pick = [...pool].sort(() => Math.random() - 0.5).slice(0, 3)
+    saveWinners(pick.map((r, i) => winnerFrom(r, i)))
+  }
+  const drawByNumber = () => {
+    const v = prompt('Geli lambarka guusha (1–1000). Saddexda qof ee lambarkooda ugu dhow ayaa guuleysanaya:')
+    const target = Number(v)
+    if (!v || !Number.isInteger(target)) return
+    const pool = rows.filter((r) => r.status !== 'rejected' && r.luckyNumber)
+    if (pool.length < 3) return setErr('Ugu yaraan 3 qof oo lambar doortay ayaa loo baahan yahay.')
+    const pick = [...pool].sort((a, b) => Math.abs(a.luckyNumber - target) - Math.abs(b.luckyNumber - target)).slice(0, 3)
+    saveWinners(pick.map((r, i) => winnerFrom(r, i)))
+  }
+  const clearWinners = () => confirm('Tirtir guuleystayaasha?') && saveWinners([])
   const remove = async (r) => {
     if (!confirm(`Tirtir ${r.fullName}?`)) return
-    try { const b = writeBatch(db); b.delete(doc(db, COL.regs, r.id)); b.update(doc(db, COL.competitions, comp.id), { registered: increment(-1) }); await b.commit() } catch (e) { setErr(e.message) }
+    try { const b = writeBatch(db); b.delete(doc(db, COL.regs, r.id)); b.delete(doc(db, COL.compPublic, r.id)); if (r.luckyNumber) b.delete(doc(db, COL.lucky, `${comp.id}_${r.luckyNumber}`)); b.update(doc(db, COL.competitions, comp.id), { registered: increment(-1) }); await b.commit() } catch (e) { setErr(e.message) }
   }
   const toLeaderboard = (r) => addDoc(collection(db, COL.board), {
     compId: comp.id, regId: r.id, name: r.fullName, country: r.country || '', startBalance: Number(String(comp.accountSize).replace(/[^0-9.]/g, '')) || 10000,
     currentBalance: Number(String(comp.accountSize).replace(/[^0-9.]/g, '')) || 10000, trades: 0, updatedAt: serverTimestamp(),
   }).catch((e) => setErr(e.message))
   const csv = () => {
-    const head = ['Full name', 'Email', 'Country', 'WhatsApp', 'Telegram', 'X', 'Experience', 'Account ID', 'Status', 'Registered']
-    const body = rows.map((r) => [r.fullName, r.email, r.country, r.whatsapp, r.telegram, r.xUsername, r.experience, r.accountId, r.status, r.createdAt?.toDate?.().toLocaleString() || ''].map(csvCell).join(','))
+    const head = ['Full name', 'Email', 'Country', 'WhatsApp', 'Telegram', 'X', 'Experience', 'Account ID', 'Lucky number', 'Photo', 'Status', 'Registered']
+    const body = rows.map((r) => [r.fullName, r.email, r.country, r.whatsapp, r.telegram, r.xUsername, r.experience, r.accountId, r.luckyNumber || '', r.photo || '', r.status, r.createdAt?.toDate?.().toLocaleString() || ''].map(csvCell).join(','))
     const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob(['﻿' + head.join(',') + '\n' + body.join('\n')], { type: 'text/csv' }))
     a.download = `${comp.name.replace(/\W+/g, '-')}-participants.csv`; a.click()
   }
@@ -228,7 +266,28 @@ function Participants({ comp, back, toBoard }) {
         <div><button className="ca-back" onClick={back}>← Competitions</button><h2>👥 Participants <small>({rows.length})</small></h2><p>{comp.name}</p></div>
         <div className="admin__actions"><button className="btn btn--ghost" onClick={toBoard}>📊 Leaderboard</button>{rows.length > 0 && <button className="btn btn--ghost" onClick={csv}>⬇ Export CSV</button>}</div>
       </div>
-      {err && <p className="err">{err}</p>}
+      {err && <p className="err" onClick={() => setErr('')}>{err} ✕</p>}
+      <div className="adm-card ca-win">
+        <div className="ca-win__head"><h3>🏆 Guuleystayaasha</h3>
+          <div className="admin__actions">
+            <button className="btn btn--ghost btn--sm" onClick={drawByNumber}>🎯 Lambarka guusha geli</button>
+            <button className="btn btn--ghost btn--sm" onClick={randomDraw}>🎲 Random draw</button>
+            {winners.some((w) => w?.name) && <button className="btn btn--ghost btn--sm" onClick={clearWinners}>✕ Tirtir</button>}
+            <a className="btn btn--gold btn--sm" href={`/competitions/${comp.id}`} target="_blank" rel="noreferrer">↗ Fiiri</a>
+          </div></div>
+        <div className="ca-win__slots">
+          {PLACES.map((p, i) => {
+            const w = winners[i]
+            return (
+              <div key={p} className={`ca-win__slot ${w?.name ? 'is-set' : ''}`}>
+                <span>{['🥇', '🥈', '🥉'][i]}</span>
+                {w?.name ? <>{w.photo ? <img src={w.photo} alt="" /> : null}<b>{w.name}</b><small>{[w.country, w.result].filter(Boolean).join(' · ')}</small><em>{w.prize}</em></> : <small>Dooro qof — riix {['🥇', '🥈', '🥉'][i]} liiska hoose</small>}
+              </div>
+            )
+          })}
+        </div>
+        <p className="muted ca-win__note">Marka aad dooratid, website-ka ayaa isla markiiba muujinaya 3-da guuleyste oo dabaaldeg (congratulations) animation leh — bogga tartanka iyo bogga hore.</p>
+      </div>
       <div className="ca-toolbar">
         <div className="chips">{['all', 'pending', 'approved', 'rejected'].map((k) => <button key={k} className={filter === k ? 'is-on' : ''} onClick={() => setFilter(k)}>{{ all: 'Dhammaan', pending: '⏳ Sugaya', approved: '✅ La oggolaaday', rejected: '❌ La diiday' }[k]} ({counts[k] || 0})</button>)}</div>
         <input className="ca-search" placeholder="🔍 Raadi magac, email, waddan…" value={q} onChange={(e) => setQ(e.target.value)} />
@@ -238,7 +297,9 @@ function Participants({ comp, back, toBoard }) {
         {shown.map((r) => (
           <div key={r.id} className={`ca-reg ca-reg--${r.status}`}>
             <div className="ca-reg__top">
-              <b>{r.fullName}</b><span className={`ca-status ca-status--${r.status}`}>{r.status}</span>
+              <div className="ca-reg__photo">{r.photo ? <a href={r.photo} target="_blank" rel="noreferrer"><img src={r.photo} alt="" /></a> : <span>{(r.fullName || '?').split(' ').map((x) => x[0]).slice(0, 2).join('')}</span>}</div>
+              <b>{r.fullName}</b>{r.luckyNumber ? <span className="ca-lucky">🍀 #{r.luckyNumber}</span> : <span className="ca-lucky is-empty">lambar ma dooran</span>}
+              {placeOf(r) >= 0 && <span className="ca-lucky">{['🥇', '🥈', '🥉'][placeOf(r)]} Winner</span>}<span className={`ca-status ca-status--${r.status}`}>{r.status}</span>
               <small>{r.createdAt?.toDate?.().toLocaleString() || ''}</small>
             </div>
             <div className="ca-reg__meta">
@@ -248,6 +309,7 @@ function Participants({ comp, back, toBoard }) {
               <span>🌍 {r.country}</span><span>📈 {r.experience}</span>{r.accountId && <span>#️⃣ {r.accountId}</span>}
             </div>
             <div className="adm-item__btns">
+              {r.status !== 'rejected' && [0, 1, 2].map((i) => <button key={i} className={placeOf(r) === i ? 'is-picked' : ''} title={`Ka dhig ${['1aad', '2aad', '3aad'][i]}`} onClick={() => setWinner(r, i)}>{['🥇', '🥈', '🥉'][i]}</button>)}
               {r.status !== 'approved' && <button onClick={() => setStatus(r, 'approved')}>✅ Oggolow</button>}
               {r.status !== 'rejected' && <button onClick={() => setStatus(r, 'rejected')}>❌ Diid</button>}
               {r.status === 'approved' && !board.includes(r.id) && <button onClick={() => toLeaderboard(r)}>📊 Ku dar leaderboard</button>}

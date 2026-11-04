@@ -82,15 +82,54 @@ service cloud.firestore {
         && (resource.data.get('maxParticipants', 0) == 0 || request.resource.data.registered <= resource.data.maxParticipants));
     }
     // Registrations (private). Document id = competitionId_email, so the same email cannot register twice.
+    function dreamRegPath(id) { return /databases/$(database)/documents/dreamCompRegs/$(id); }
     match /dreamCompRegs/{id} {
-      allow create: if request.resource.data.status == 'pending'
+      allow create: if request.auth != null
+        && request.resource.data.uid == request.auth.uid
+        && request.resource.data.status == 'pending'
         && request.resource.data.agreed == true
-        && request.resource.data.fullName is string && request.resource.data.fullName.size() > 1 && request.resource.data.fullName.size() < 100
-        && request.resource.data.email is string && request.resource.data.email.size() < 160
+        && request.resource.data.fullName is string && request.resource.data.fullName.size() > 3 && request.resource.data.fullName.size() <= 60
+        && !request.resource.data.fullName.matches('.*[0-9@#$%^&*_+=<>?/|{}~!:;,].*')
+        && request.resource.data.email is string && request.resource.data.email.size() < 130
+        && request.resource.data.email.matches('^[a-z0-9._%+-]+@[a-z0-9.-]+[.][a-z]{2,}$')
         && request.resource.data.compId is string
+        && !('luckyNumber' in request.resource.data)
         && id.matches(request.resource.data.compId + '_.+')
         && get(/databases/$(database)/documents/dreamCompetitions/$(request.resource.data.compId)).data.get('registrationOpen', false) == true;
-      allow read, update, delete: if isDreamAdmin();
+      // the visitor may add his lucky number once (and only together with claiming that number)
+      allow update: if isDreamAdmin() || (
+        request.auth != null && resource.data.get('uid', '') == request.auth.uid
+        && !('luckyNumber' in resource.data)
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['luckyNumber'])
+        && existsAfter(/databases/$(database)/documents/dreamLuckyNumbers/$(resource.data.compId + '_' + string(request.resource.data.luckyNumber))));
+      allow read, delete: if isDreamAdmin();
+    }
+    // Public participants wall (name, country, photo, lucky number — no email / phone)
+    match /dreamCompPublic/{id} {
+      allow read: if true;
+      allow create: if isDreamAdmin() || (
+        request.auth != null && request.resource.data.uid == request.auth.uid
+        && request.resource.data.keys().hasOnly(['compId', 'name', 'country', 'photo', 'uid', 'createdAt'])
+        && request.resource.data.name is string && request.resource.data.name.size() <= 60
+        && existsAfter(dreamRegPath(id)) && getAfter(dreamRegPath(id)).data.uid == request.auth.uid);
+      allow update: if isDreamAdmin() || (
+        request.auth != null && resource.data.get('uid', '') == request.auth.uid
+        && !('luckyNumber' in resource.data)
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['luckyNumber'])
+        && getAfter(dreamRegPath(id)).data.luckyNumber == request.resource.data.luckyNumber);
+      allow delete: if isDreamAdmin();
+    }
+    // "Try your luck" numbers 1–1000. Doc id = competitionId_number → each number can be claimed once.
+    match /dreamLuckyNumbers/{id} {
+      allow read: if true;
+      allow create: if request.auth != null
+        && request.resource.data.uid == request.auth.uid
+        && request.resource.data.number is int && request.resource.data.number >= 1 && request.resource.data.number <= 1000
+        && id == request.resource.data.compId + '_' + string(request.resource.data.number)
+        && getAfter(dreamRegPath(request.resource.data.regId)).data.uid == request.auth.uid
+        && getAfter(dreamRegPath(request.resource.data.regId)).data.luckyNumber == request.resource.data.number;
+      allow update: if false;
+      allow delete: if isDreamAdmin();
     }
     // Leaderboard (public, admin writes)
     match /dreamCompBoard/{id} { allow read: if true; allow write: if isDreamAdmin(); }
