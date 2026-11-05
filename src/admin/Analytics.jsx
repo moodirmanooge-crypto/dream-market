@@ -32,21 +32,18 @@ function PublicCounterSettings({ today, total }) {
   const save = async () => {
     setMsg('…')
     try {
-      const out = { ...v }; ['startTotalVisits', 'startTotalVisitors', 'addDailyVisitors', 'addDailyVisits'].forEach((k) => (out[k] = n(out[k])))
+      const out = { ...v, startTotalVisits: n(v.startTotalVisits), startTotalVisitors: 0, addDailyVisitors: 0, addDailyVisits: 0 }
       await setDoc(doc(db, COL.settings, 'site'), { visitors: out }, { merge: true })
       setMsg('✓ Waa la kaydiyay — bogga hore isla markiiba wuu isbeddelay.')
     } catch (e) { setMsg(e.message) }
   }
   const rows = [
     ['startTotalVisits', 'Total Visits — ka bilow', 'tusaale 1000', n(total.visits)],
-    ['startTotalVisitors', 'Total Visitors — ka bilow', 'tusaale 600', n(total.visitors)],
-    ['addDailyVisitors', 'Visitors Today — ku dar maalin kasta', 'tusaale 50', n(today.visitors)],
-    ['addDailyVisits', 'Visits Today — ku dar maalin kasta', 'tusaale 80', n(today.visits)],
   ]
   return (
     <div className="adm-card pcs">
       <div className="pcs__head">
-        <div><h3>🌐 Tirada booqdayaasha ee website-ka (Live Website Traffic)</h3><p className="muted">Geli tirada ay ka bilaabanayaan — booqasho kasta oo cusub ayaa ku sii kordhinaysa si toos ah.</p></div>
+        <div><h3>🌐 Tirada booqdayaasha ee website-ka (Live Website Traffic)</h3><p className="muted">Kaliya <b>Total Visits</b> ayaad beddeli kartaa. Visitors Today, Visits Today iyo Total Visitors waa tirooyinka dhabta ah ee dadka soo booqda.</p></div>
         <label className="adm-check"><input type="checkbox" checked={!!v.show} onChange={set('show')} /><span>Ka muuji bogga hore</span></label>
       </div>
       <div className="pcs__grid">

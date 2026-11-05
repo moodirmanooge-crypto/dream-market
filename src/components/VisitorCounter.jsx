@@ -18,8 +18,8 @@ export default function VisitorCounter({ cfg }) {
   const n = (v) => Number(v) || 0
   // admin-chosen starting numbers + the real counts (every new visit keeps adding)
   const items = [
-    [cfg.today, n(cfg.addDailyVisitors) + n(today?.visitors)], [cfg.visitsToday, n(cfg.addDailyVisits) + n(today?.visits)],
-    [cfg.total, n(cfg.startTotalVisits) + n(total?.visits)], [cfg.totalVisitors, n(cfg.startTotalVisitors) + n(total?.visitors)],
+    [cfg.today, n(today?.visitors)], [cfg.visitsToday, n(today?.visits)],
+    [cfg.total, n(cfg.startTotalVisits) + n(total?.visits)], [cfg.totalVisitors, n(total?.visitors)],
   ]
   if (!today && !total && !items.some(([, v]) => v)) return null
   return (

@@ -1403,3 +1403,4 @@ a.guest { display: block; color: inherit; }
 .featured__media.is-playing .studio__label { display: none; }
 .mv__sound { position: absolute; top: 12px; right: 12px; z-index: 5; padding: 6px 12px; border-radius: 999px; font-size: .8rem; font-weight: 800; background: rgba(0,0,0,.65); border: 1px solid var(--line); color: #fff; backdrop-filter: blur(6px); }
 .modal__video .mv__sound { top: 12px; left: 12px; right: auto; }
+.pcs__grid { grid-template-columns: minmax(220px, 360px); }
