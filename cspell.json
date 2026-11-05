@@ -1,0 +1,15 @@
+{
+  "version": "0.2",
+  "language": "en",
+  "ignorePaths": ["node_modules", "dist", "functions/node_modules", "*.lock", "package-lock.json"],
+  "ignoreRegExpList": ["/[a-z]+__[a-z-]+/g"],
+  "words": [
+    "typer", "kenburns", "barfill", "scrolly", "logoimg", "loginbg", "pagehead", "savebar", "navcta", "charthead",
+    "tablewrap", "pulseg", "cardbio", "listwrap", "nums", "sechead", "linkbtn", "bellwrap", "bellshake", "fixmsg",
+    "ctrls", "spinball", "luckyball", "wcfall", "cardshine", "glowpulse", "panelglow", "wname", "pbtn", "firestore",
+    "firebaserc", "vapid", "railpack", "Barakaat", "Mogadishu", "Somaliland", "Shirhan", "Dahir", "Guled", "Hodan",
+    "Ayaan", "Sahra", "Nimco", "Warsame", "Farhia", "Iqra", "Barkhadle", "Deka", "Amina", "Hormuud", "galladtech"
+  ],
+  "language_note": "Somali text is not checked",
+  "flagWords": []
+}
