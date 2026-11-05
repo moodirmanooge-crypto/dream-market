@@ -39,6 +39,7 @@ export async function runSiteMigrations() {
   const patch = {}
   const email = s.contact?.email
   if (!email || email === 'hello@dreammarketpodcast.com') patch.contact = { email: 'dreammarketpodcast@gmail.com' }
+  if (!s.sections?.competitions || s.sections.competitions.title === 'Compete. Prove your skills.') patch.sections = { competitions: (await import('../data/seed')).defaultSettings.sections.competitions }
   if (Object.keys(patch).length) await setDoc(ref, patch, { merge: true })
 }
 
