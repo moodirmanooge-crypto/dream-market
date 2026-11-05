@@ -65,7 +65,7 @@ export default function CompetitionsPage() {
                 </>
               )}
             </div>
-            <TrophyArt prizes={active?.prizes} />
+            <TrophyArt prizes={active?.prizes} winners={(won && won.id === active?.id ? won : active)?.winners || []} />
           </div>
           {active && people.length > 0 && (
             <div className="cph__people">

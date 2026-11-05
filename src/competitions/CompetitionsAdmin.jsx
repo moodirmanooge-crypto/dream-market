@@ -104,7 +104,7 @@ function List({ comps, setView, setErr }) {
                 </div>
               </div>
               <div className="adm-item__btns">
-                <button onClick={() => setView({ mode: 'regs', comp: c })}>👥 Participants</button>
+                <button className="ca-pbtn" onClick={() => setView({ mode: 'regs', comp: c })}>👥 Participants & 🏆 Winners ({c.registered || 0})</button>
                 <button onClick={() => setView({ mode: 'board', comp: c })}>📊 Leaderboard</button>
                 <button onClick={() => toggle(c)}>{c.registrationOpen ? 'Xir registration' : 'Fur registration'}</button>
                 <button onClick={() => setView({ mode: 'edit', comp: c })}>Edit</button>
