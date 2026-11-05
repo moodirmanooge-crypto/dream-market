@@ -14,7 +14,7 @@ export const SCHEMAS = {
       ['number', 'number', 'Episode #'], ['title', 'text', 'Title'], ['guest', 'text', 'Guest name'], ['role', 'text', 'Guest role'],
       ['guestImage', 'image', 'Guest photo'], ['category', 'text', 'Category'], ['duration', 'text', 'Duration', 'tusaale: 45 min'],
       ['image', 'image', 'Thumbnail / slide image'],
-      ['mediaMode', 'select', '🎧 / ▶ Sida website-ka loogu muujiyo', 'Voice = cod keliya (xitaa haddii aad video upload gareyso)', [{ value: 'video', label: '▶ Video (muuqaal + cod)' }, { value: 'audio', label: '🎧 Voice / Audio (cod keliya)' }]],
+      ['mediaMode', 'select', '🎧 / ▶ Sida website-ka loogu muujiyo', 'Video + cod gooni ah: muuqaalka iyo codka si isku mid ah ayay u socdaan', [{ value: 'video', label: '▶ Video — codka muuqaalka laftiisa' }, { value: 'videoAudio', label: '▶🎧 Video + cod gooni ah (codka hoose ayaa la maqlayaa)' }, { value: 'audio', label: '🎧 Voice / Audio keliya (muuqaal la\'aan)' }]],
       ['audio', 'audio', '🎧 Voice / Audio file', 'mp3, m4a, wav — ama video mp4'], ['video', 'video', '▶ Video file (upload)'], ['youtube', 'url', 'YouTube link', 'haddii video la upload-gareyn waayo'],
       ['description', 'textarea', 'Description'], ['featured', 'checkbox', '⭐ Featured episode (hal keliya)'], ['showInHero', 'checkbox', '🎞 Ku tus hero slider-ka'], ['hidden', 'checkbox', '🙈 Qari (website-ka ha ka muuqan)'],
     ],
@@ -132,7 +132,7 @@ export default function CollectionManager({ name }) {
               <b>{r.number ? `#${r.number} · ` : ''}{r.title || r.name}</b>
               <small>{[r.guest, r.role, r.focus, r.category, r.duration].filter(Boolean).join(' · ') || r.description || r.link || ''}</small>
               <div className="adm-tags">
-                {r.featured && <em>⭐ Featured</em>}{r.founder && <em>👑 Founder</em>}{r.showInHero && <em>🎞 Hero</em>}{(r.audio || (r.mediaMode === 'audio' && r.video)) ? <em>🎧 Audio</em> : (r.video || r.youtube) && <em>▶ Video</em>}{r.hidden && <em className="off">🙈 Qarsoon</em>}
+                {r.featured && <em>⭐ Featured</em>}{r.founder && <em>👑 Founder</em>}{r.showInHero && <em>🎞 Hero</em>}{r.video && r.audio && r.mediaMode !== 'audio' && r.mediaMode !== 'video' ? <em>▶🎧 Video + Voice</em> : (r.audio || (r.mediaMode === 'audio' && r.video)) ? <em>🎧 Audio</em> : (r.video || r.youtube) && <em>▶ Video</em>}{r.hidden && <em className="off">🙈 Qarsoon</em>}
               </div>
             </div>
             <div className="adm-item__btns">

@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import StudioScene from './StudioScene'
 import AudioPlayer from './AudioPlayer'
 import { epMedia } from './media'
+import MediaVideo from './MediaVideo'
 
 export default function PlayerModal({ episode, onClose }) {
   useEffect(() => {
@@ -25,7 +26,7 @@ export default function PlayerModal({ episode, onClose }) {
               </div>
             ) : (
               <div className="modal__video">
-                {m?.kind === 'video' ? <video src={m.src} controls autoPlay playsInline poster={episode.image || undefined} />
+                {m?.kind === 'video' ? <MediaVideo src={m.src} audio={m.audio} poster={episode.image} autoPlay />
                   : m?.kind === 'youtube' ? <iframe src={`https://www.youtube.com/embed/${m.id}?autoplay=1`} title={episode.title} allow="autoplay; encrypted-media; picture-in-picture" allowFullScreen />
                   : <><StudioScene hue={225} /><p className="modal__soon">Coming soon — stay tuned.</p></>}
               </div>

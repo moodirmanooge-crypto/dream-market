@@ -1,20 +1,27 @@
 import StudioScene from './StudioScene'
 import SectionHead from './SectionHead'
 import AudioPlayer from './AudioPlayer'
+import { useEffect, useState } from 'react'
 import { epMedia } from './media'
+import MediaVideo from './MediaVideo'
 
 export default function Featured({ episode, onPlay, head }) {
   if (!episode) return null
   const media = epMedia(episode)
   const voice = media?.kind === 'audio'
+  const inline = media?.kind === 'video'
+  const [playing, setPlaying] = useState(false)
+  useEffect(() => setPlaying(false), [episode?.id, media?.src])
+  const start = () => (inline ? setPlaying(true) : onPlay(episode))
   return (
     <section className="section container" id="featured">
       <SectionHead {...head} />
       <article className="featured" data-reveal>
-        <div className="featured__media">
-          {episode.image ? <img src={episode.image} alt={episode.title} /> : <StudioScene hue={230} label="FEATURED" />}
-          {voice ? <span className="featured__voice">🎧 Listen</span> : (
-          <button className="play-big" onClick={() => onPlay(episode)} aria-label="Play featured">
+        <div className={`featured__media ${playing ? 'is-playing' : ''}`}>
+          {playing ? <MediaVideo className="featured__video" src={media.src} audio={media.audio} poster={episode.image} autoPlay />
+            : episode.image ? <img src={episode.image} alt={episode.title} /> : <StudioScene hue={230} label="FEATURED" />}
+          {playing ? null : voice ? <span className="featured__voice">🎧 Listen</span> : (
+          <button className="play-big" onClick={start} aria-label="Play featured">
             <span className="play-big__ring" /><span className="play-big__ring play-big__ring--2" />
             <svg viewBox="0 0 24 24" width="34" height="34"><path d="M8 5v14l11-7z" fill="currentColor" /></svg>
           </button>)}
@@ -34,7 +41,7 @@ export default function Featured({ episode, onPlay, head }) {
               <div className="wave" aria-hidden>
                 {Array.from({ length: 48 }).map((_, i) => <i key={i} style={{ animationDelay: `${(i % 12) * 0.08}s`, height: `${20 + ((i * 37) % 70)}%` }} />)}
               </div>
-              <div className="featured__meta"><span>⏱ {episode.duration}</span><button className="btn btn--gold" onClick={() => onPlay(episode)}>▶ Play Now</button></div>
+              <div className="featured__meta"><span>⏱ {episode.duration}</span>{playing ? <button className="btn btn--ghost" onClick={() => setPlaying(false)}>■ Stop</button> : <button className="btn btn--gold" onClick={start}>▶ Play Now</button>}</div>
             </>
           )}
         </div>
