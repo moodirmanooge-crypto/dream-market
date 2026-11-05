@@ -81,20 +81,24 @@ service cloud.firestore {
         && resource.data.get('registrationOpen', false) == true
         && (resource.data.get('maxParticipants', 0) == 0 || request.resource.data.registered <= resource.data.maxParticipants));
     }
-    // Registrations (private). Document id = competitionId_email, so the same email cannot register twice.
+    // Registrations (private). Document id = competitionId_deviceId → one registration per device per competition.
     function dreamRegPath(id) { return /databases/$(database)/documents/dreamCompRegs/$(id); }
+    function dreamMyRegId(compId) { return compId + '_' + request.auth.uid; }
     match /dreamCompRegs/{id} {
       allow create: if request.auth != null
         && request.resource.data.uid == request.auth.uid
+        && id == dreamMyRegId(request.resource.data.compId)
         && request.resource.data.status == 'pending'
         && request.resource.data.agreed == true
         && request.resource.data.fullName is string && request.resource.data.fullName.size() > 3 && request.resource.data.fullName.size() <= 60
         && !request.resource.data.fullName.matches('.*[0-9@#$%^&*_+=<>?/|{}~!:;,].*')
         && request.resource.data.email is string && request.resource.data.email.size() < 130
         && request.resource.data.email.matches('^[a-z0-9._%+-]+@[a-z0-9.-]+[.][a-z]{2,}$')
-        && request.resource.data.compId is string
+        && request.resource.data.nameKey is string && request.resource.data.nameKey.size() > 2
         && !('luckyNumber' in request.resource.data)
-        && id.matches(request.resource.data.compId + '_.+')
+        // the email and the name must be claimed in the same write (each can be used only once per competition)
+        && existsAfter(/databases/$(database)/documents/dreamCompEmails/$(request.resource.data.compId + '_' + request.resource.data.email))
+        && existsAfter(/databases/$(database)/documents/dreamCompNames/$(request.resource.data.compId + '_' + request.resource.data.nameKey))
         && get(/databases/$(database)/documents/dreamCompetitions/$(request.resource.data.compId)).data.get('registrationOpen', false) == true;
       // the visitor may add his lucky number once (and only together with claiming that number)
       allow update: if isDreamAdmin() || (
@@ -102,34 +106,57 @@ service cloud.firestore {
         && !('luckyNumber' in resource.data)
         && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['luckyNumber'])
         && existsAfter(/databases/$(database)/documents/dreamLuckyNumbers/$(resource.data.compId + '_' + string(request.resource.data.luckyNumber))));
-      allow read, delete: if isDreamAdmin();
+      // the owner (same device) may read his own registration — used to stop double registration
+      allow get: if isDreamAdmin() || (request.auth != null && resource.data.uid == request.auth.uid);
+      allow list, delete: if isDreamAdmin();
     }
-    // Public participants wall (name, country, photo, lucky number — no email / phone)
+    // Email / name locks — one registration per email and per name in each competition
+    match /dreamCompEmails/{id} {
+      allow get: if true;
+      allow list: if isDreamAdmin();
+      allow create: if request.auth != null && request.resource.data.uid == request.auth.uid
+        && request.resource.data.regId == dreamMyRegId(request.resource.data.compId)
+        && id == request.resource.data.compId + '_' + getAfter(dreamRegPath(request.resource.data.regId)).data.email;
+      allow update: if false;
+      allow delete: if isDreamAdmin();
+    }
+    match /dreamCompNames/{id} {
+      allow get: if true;
+      allow list: if isDreamAdmin();
+      allow create: if request.auth != null && request.resource.data.uid == request.auth.uid
+        && request.resource.data.regId == dreamMyRegId(request.resource.data.compId)
+        && id == request.resource.data.compId + '_' + getAfter(dreamRegPath(request.resource.data.regId)).data.nameKey;
+      allow update: if false;
+      allow delete: if isDreamAdmin();
+    }
+    // Public participants wall (name, country, photo — no email, phone or lucky number)
     match /dreamCompPublic/{id} {
       allow read: if true;
       allow create: if isDreamAdmin() || (
         request.auth != null && request.resource.data.uid == request.auth.uid
+        && id == dreamMyRegId(request.resource.data.compId)
         && request.resource.data.keys().hasOnly(['compId', 'name', 'country', 'photo', 'uid', 'createdAt'])
         && request.resource.data.name is string && request.resource.data.name.size() <= 60
-        && existsAfter(dreamRegPath(id)) && getAfter(dreamRegPath(id)).data.uid == request.auth.uid);
+        && existsAfter(dreamRegPath(id)));
       allow update: if isDreamAdmin() || (
         request.auth != null && resource.data.get('uid', '') == request.auth.uid
-        && !('luckyNumber' in resource.data)
-        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['luckyNumber'])
-        && getAfter(dreamRegPath(id)).data.luckyNumber == request.resource.data.luckyNumber);
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['hasLucky'])
+        && request.resource.data.hasLucky == true
+        && getAfter(dreamRegPath(id)).data.luckyNumber is int);
       allow delete: if isDreamAdmin();
     }
     // "Try your luck" numbers 1–1000. Doc id = competitionId_number → each number can be claimed once.
+    // Contains no name, so visitors only see that a number is taken — never who took it.
     match /dreamLuckyNumbers/{id} {
       allow read: if true;
       allow create: if request.auth != null
         && request.resource.data.uid == request.auth.uid
+        && request.resource.data.keys().hasOnly(['compId', 'number', 'regId', 'uid', 'createdAt'])
         && request.resource.data.number is int && request.resource.data.number >= 1 && request.resource.data.number <= 1000
         && id == request.resource.data.compId + '_' + string(request.resource.data.number)
-        && getAfter(dreamRegPath(request.resource.data.regId)).data.uid == request.auth.uid
+        && request.resource.data.regId == dreamMyRegId(request.resource.data.compId)
         && getAfter(dreamRegPath(request.resource.data.regId)).data.luckyNumber == request.resource.data.number;
-      allow update: if false;
-      allow delete: if isDreamAdmin();
+      allow update, delete: if isDreamAdmin();
     }
     // Leaderboard (public, admin writes)
     match /dreamCompBoard/{id} { allow read: if true; allow write: if isDreamAdmin(); }

@@ -55,9 +55,11 @@ exports.dmpNewRegistration = onDocumentCreated('dreamCompRegs/{id}', (e) => {
   })
 })
 
-exports.dmpLuckyNumber = onDocumentCreated('dreamLuckyNumbers/{id}', (e) => {
+exports.dmpLuckyNumber = onDocumentCreated('dreamLuckyNumbers/{id}', async (e) => {
   const d = e.data ? e.data.data() : {}
-  return notifyAdmins({ title: '🍀 Lucky number picked', body: `${d.name || ''} chose #${d.number}`, tag: `lucky-${e.params.id}`, tab: 'competitions' })
+  let name = ''
+  try { name = (await admin.firestore().doc(`dreamCompRegs/${d.regId}`).get()).get('fullName') || '' } catch (err) { /* ignore */ }
+  return notifyAdmins({ title: '🍀 Lucky number picked', body: `${name || 'A trader'} chose #${d.number}`, tag: `lucky-${e.params.id}`, tab: 'competitions' })
 })
 
 exports.dmpNewMessage = onDocumentCreated('dreamMessages/{id}', (e) => {

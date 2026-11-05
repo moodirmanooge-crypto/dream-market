@@ -1,24 +1,48 @@
 import { useEffect, useRef, useState } from 'react'
-import { collection, doc, increment, onSnapshot, query, serverTimestamp, where, writeBatch } from 'firebase/firestore'
+import { collection, doc, getDoc, increment, onSnapshot, query, serverTimestamp, where, writeBatch } from 'firebase/firestore'
+import { onAuthStateChanged } from 'firebase/auth'
+import { auth } from '../firebase'
 import { db } from '../firebase'
 import { COL } from '../data/seed'
-import { cleanName, emailError, ensureUser, getMyReg, initials, LUCKY_MAX, LUCKY_MIN, nameError, phoneError, randomLucky, saveMyReg, shrinkImage, uploadPhoto } from './participants'
+import { cleanName, emailError, emailLockId, ensureUser, getMyReg, initials, LUCKY_MAX, LUCKY_MIN, nameError, nameKey, nameLockId, phoneError, randomLucky, regIdFor, saveMyReg, shrinkImage, uploadPhoto } from './participants'
 
 const EXPERIENCE = ['Beginner (less than 1 year)', 'Intermediate (1–3 years)', 'Advanced (3–5 years)', 'Professional (5+ years)']
 const COUNTRIES = ['Somalia', 'Somaliland', 'Kenya', 'Ethiopia', 'Djibouti', 'Uganda', 'United Arab Emirates', 'Saudi Arabia', 'Turkey', 'United Kingdom', 'United States', 'Canada', 'Sweden', 'Norway', 'Netherlands', 'Germany']
 
-export const regId = (compId, email) => `${compId}_${email.trim().toLowerCase().replace(/[^a-z0-9]/g, '_')}`
+// Finds this device's registration (works even if the browser storage was cleared)
+export function useMyReg(compId) {
+  const [mine, setMine] = useState(() => getMyReg(compId))
+  useEffect(() => onAuthStateChanged(auth, async (u) => {
+    if (!u || !compId || compId === 'sample') return
+    try {
+      const d = await getDoc(doc(db, COL.regs, regIdFor(compId, u.uid)))
+      if (d.exists()) {
+        const r = { regId: d.id, name: d.data().fullName, photo: d.data().photo || '', lucky: d.data().luckyNumber || null }
+        saveMyReg(compId, r); setMine(r)
+      }
+    } catch { /* not registered */ }
+  }), [compId])
+  return [mine, setMine]
+}
 
 /* Step 1: registration form (+ photo)  →  Step 2: "Try your luck" number 1–1000  →  Step 3: done */
 export default function JoinModal({ comp, onClose, startAtLucky = false }) {
   const saved = getMyReg(comp.id)
-  const [step, setStep] = useState(startAtLucky && saved?.regId ? 'lucky' : 'form')
+  const [step, setStep] = useState(saved?.regId ? (saved.lucky ? 'already' : 'lucky') : startAtLucky ? 'lucky' : 'form')
   const [reg, setReg] = useState(saved)
   return (
     <div className="modal" onClick={onClose}>
       <div className="modal__box jm" onClick={(e) => e.stopPropagation()}>
         <button className="modal__close" onClick={onClose} aria-label="Close">✕</button>
         <div className="jm__steps">{['Register', 'Try your luck', 'Done'].map((l, i) => <span key={l} className={['form', 'lucky', 'done'].indexOf(step) >= i ? 'is-on' : ''}><b>{i + 1}</b>{l}</span>)}</div>
+        {step === 'already' && reg && (
+          <div className="jm__done">
+            <div className="jm__luckyball">#{reg.lucky}</div>
+            <h3>You're already registered ✓</h3>
+            <p>This device is already registered for <b>{comp.name}</b> with lucky number <b>#{reg.lucky}</b>. You can join again when a new competition opens.</p>
+            <button className="btn btn--gold btn--lg" onClick={onClose}>OK</button>
+          </div>
+        )}
         {step === 'form' && <RegisterForm comp={comp} onDone={(r) => { setReg(r); setStep('lucky') }} />}
         {step === 'lucky' && reg && <LuckyPicker comp={comp} reg={reg} onDone={(r) => { setReg(r); setStep('done') }} />}
         {step === 'done' && reg && (
@@ -60,19 +84,30 @@ function RegisterForm({ comp, onDone }) {
     setState('sending')
     try {
       const user = await ensureUser()
+      const name = cleanName(f.fullName)
+      const email = f.email.trim().toLowerCase()
+      const id = regIdFor(comp.id, user.uid)
+      // one registration per device, per email and per name
+      const [mine, em, nm] = await Promise.all([
+        getDoc(doc(db, COL.regs, id)).catch(() => null),
+        getDoc(doc(db, COL.emailLocks, emailLockId(comp.id, email))).catch(() => null),
+        getDoc(doc(db, COL.nameLocks, nameLockId(comp.id, name))).catch(() => null),
+      ])
+      if (mine?.exists()) { setState('idle'); return setErr('This device has already registered for this competition.') }
+      if (em?.exists()) { setState('idle'); return setErr('This email is already registered for this competition.') }
+      if (nm?.exists()) { setState('idle'); return setErr('This name is already registered for this competition.') }
       let photoUrl = ''
       if (photo?.blob) {
         try { photoUrl = await uploadPhoto(photo.blob, user.uid) } catch { photoUrl = '' } // registration still works if the upload fails
       }
-      const name = cleanName(f.fullName)
-      const email = f.email.trim().toLowerCase()
-      const id = regId(comp.id, email)
       const b = writeBatch(db)
       b.set(doc(db, COL.regs, id), {
         fullName: name, email, country: f.country.trim(), whatsapp: f.whatsapp.trim(), telegram: f.telegram.trim(), xUsername: f.xUsername.trim(),
         experience: f.experience, accountId: f.accountId.trim(), agreed: true, photo: photoUrl,
-        compId: comp.id, compName: comp.name, uid: user.uid, status: 'pending', createdAt: serverTimestamp(),
+        compId: comp.id, compName: comp.name, uid: user.uid, nameKey: nameKey(name), status: 'pending', createdAt: serverTimestamp(),
       })
+      b.set(doc(db, COL.emailLocks, emailLockId(comp.id, email)), { compId: comp.id, regId: id, uid: user.uid })
+      b.set(doc(db, COL.nameLocks, nameLockId(comp.id, name)), { compId: comp.id, regId: id, uid: user.uid })
       b.set(doc(db, COL.compPublic, id), { compId: comp.id, name, country: f.country.trim(), photo: photoUrl, uid: user.uid, createdAt: serverTimestamp() })
       b.update(doc(db, COL.competitions, comp.id), { registered: increment(1) })
       await b.commit()
@@ -81,7 +116,7 @@ function RegisterForm({ comp, onDone }) {
       onDone(r)
     } catch (e2) {
       console.error(e2); setState('idle')
-      setErr(e2.code === 'permission-denied' ? 'This email is already registered for this competition, or registration has just closed.'
+      setErr(e2.code === 'permission-denied' ? 'This email, name or device is already registered for this competition — or registration has just closed.'
         : e2.code === 'auth/admin-restricted-operation' || e2.code === 'auth/operation-not-allowed' ? 'Registration is temporarily unavailable. Please try again later.'
           : 'Something went wrong. Please check your connection and try again.')
     }
@@ -157,9 +192,9 @@ function LuckyPicker({ comp, reg, onDone }) {
     try {
       const user = await ensureUser()
       const b = writeBatch(db)
-      b.set(doc(db, COL.lucky, `${comp.id}_${num}`), { compId: comp.id, number: num, regId: reg.regId, name: reg.name, photo: reg.photo || '', uid: user.uid, createdAt: serverTimestamp() })
+      b.set(doc(db, COL.lucky, `${comp.id}_${num}`), { compId: comp.id, number: num, regId: reg.regId, uid: user.uid, createdAt: serverTimestamp() }) // no name: nobody can see who owns a number
       b.update(doc(db, COL.regs, reg.regId), { luckyNumber: num })
-      b.update(doc(db, COL.compPublic, reg.regId), { luckyNumber: num })
+      b.update(doc(db, COL.compPublic, reg.regId), { hasLucky: true })
       await b.commit()
       const r = { ...reg, lucky: num }
       saveMyReg(comp.id, r)
@@ -173,7 +208,7 @@ function LuckyPicker({ comp, reg, onDone }) {
   return (
     <form onSubmit={submit} className="jm__form lk">
       <div className="jm__head"><span className="chip">🍀 Bonus</span><h3>Try your luck!</h3>
-        <p className="muted">Pick your lucky number between <b>{LUCKY_MIN}</b> and <b>{LUCKY_MAX}</b>. Each number can be claimed by only one trader — once you submit, it's yours.</p></div>
+        <p className="muted">Pick your lucky number between <b>{LUCKY_MIN}</b> and <b>{LUCKY_MAX}</b>. Each number can be claimed by only one trader — once you submit, it's yours. Your number stays private: only you and the organizers can see it.</p></div>
       <div className={`lk__ball ${spin ? 'is-spin' : ''} ${isTaken ? 'is-bad' : valid ? 'is-ok' : ''}`}>
         <input type="number" inputMode="numeric" min={LUCKY_MIN} max={LUCKY_MAX} placeholder="?" value={n} onChange={(e) => { setN(e.target.value.replace(/\D/g, '').slice(0, 4)); setErr('') }} aria-label="Lucky number" />
       </div>

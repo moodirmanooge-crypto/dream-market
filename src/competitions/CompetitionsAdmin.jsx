@@ -195,6 +195,7 @@ function Participants({ comp, back, toBoard }) {
   const [rows, setRows] = useState([])
   const [filter, setFilter] = useState('all')
   const [q, setQ] = useState('')
+  const [sortNum, setSortNum] = useState(false)
   const [board, setBoard] = useState([])
   const [err, setErr] = useState('')
   useEffect(() => onSnapshot(query(collection(db, COL.regs), where('compId', '==', comp.id)),
@@ -204,6 +205,7 @@ function Participants({ comp, back, toBoard }) {
   const counts = { all: rows.length, pending: 0, approved: 0, rejected: 0 }
   rows.forEach((r) => (counts[r.status] = (counts[r.status] || 0) + 1))
   const shown = rows.filter((r) => (filter === 'all' || r.status === filter) && (!q || JSON.stringify(r).toLowerCase().includes(q.toLowerCase())))
+  if (sortNum) shown.sort((a, b) => (a.luckyNumber ?? 99999) - (b.luckyNumber ?? 99999))
 
   const setStatus = async (r, status) => {
     try {
@@ -211,7 +213,7 @@ function Participants({ comp, back, toBoard }) {
       b.update(doc(db, COL.regs, r.id), { status, reviewedAt: serverTimestamp() })
       // rejected people disappear from the public participants wall; approved ones come back
       if (status === 'rejected') b.delete(doc(db, COL.compPublic, r.id))
-      else b.set(doc(db, COL.compPublic, r.id), { compId: comp.id, name: r.fullName, country: r.country || '', photo: r.photo || '', uid: r.uid || '', ...(r.luckyNumber ? { luckyNumber: r.luckyNumber } : {}), createdAt: r.createdAt || serverTimestamp() })
+      else b.set(doc(db, COL.compPublic, r.id), { compId: comp.id, name: r.fullName, country: r.country || '', photo: r.photo || '', uid: r.uid || '', ...(r.luckyNumber ? { hasLucky: true } : {}), createdAt: r.createdAt || serverTimestamp() })
       await b.commit()
     } catch (e) { setErr(e.message) }
   }
@@ -219,7 +221,7 @@ function Participants({ comp, back, toBoard }) {
   // ---------- winners (1st / 2nd / 3rd) ----------
   const winners = comp.winners || []
   const PLACES = ['1st Place', '2nd Place', '3rd Place']
-  const winnerFrom = (r, i) => ({ regId: r.id, place: PLACES[i], name: r.fullName, country: r.country || '', photo: r.photo || '', result: r.luckyNumber ? `Lucky #${r.luckyNumber}` : '', prize: comp.prizes?.[i]?.prize || '', certificate: '' })
+  const winnerFrom = (r, i) => ({ regId: r.id, place: PLACES[i], name: r.fullName, country: r.country || '', photo: r.photo || '', result: '', prize: comp.prizes?.[i]?.prize || '', certificate: '' })
   const saveWinners = (list) => updateDoc(doc(db, COL.competitions, comp.id), { winners: list }).catch((e) => setErr(e.message))
   const setWinner = (r, i) => {
     const list = [0, 1, 2].map((k) => (winners[k]?.regId === r.id ? null : winners[k] || null))
@@ -245,8 +247,8 @@ function Participants({ comp, back, toBoard }) {
   }
   const clearWinners = () => confirm('Tirtir guuleystayaasha?') && saveWinners([])
   const remove = async (r) => {
-    if (!confirm(`Tirtir ${r.fullName}?`)) return
-    try { const b = writeBatch(db); b.delete(doc(db, COL.regs, r.id)); b.delete(doc(db, COL.compPublic, r.id)); if (r.luckyNumber) b.delete(doc(db, COL.lucky, `${comp.id}_${r.luckyNumber}`)); b.update(doc(db, COL.competitions, comp.id), { registered: increment(-1) }); await b.commit() } catch (e) { setErr(e.message) }
+    if (!confirm(`Tirtir ${r.fullName}? (email-ka, magaca iyo device-ka mar kale ayay isku diiwaangelin karaan)`)) return
+    try { const b = writeBatch(db); b.delete(doc(db, COL.regs, r.id)); b.delete(doc(db, COL.compPublic, r.id)); if (r.email) b.delete(doc(db, COL.emailLocks, `${comp.id}_${r.email}`)); if (r.nameKey) b.delete(doc(db, COL.nameLocks, `${comp.id}_${r.nameKey}`)); if (r.luckyNumber) b.delete(doc(db, COL.lucky, `${comp.id}_${r.luckyNumber}`)); b.update(doc(db, COL.competitions, comp.id), { registered: increment(-1) }); await b.commit() } catch (e) { setErr(e.message) }
   }
   const toLeaderboard = (r) => addDoc(collection(db, COL.board), {
     compId: comp.id, regId: r.id, name: r.fullName, country: r.country || '', startBalance: Number(String(comp.accountSize).replace(/[^0-9.]/g, '')) || 10000,
@@ -290,6 +292,7 @@ function Participants({ comp, back, toBoard }) {
       </div>
       <div className="ca-toolbar">
         <div className="chips">{['all', 'pending', 'approved', 'rejected'].map((k) => <button key={k} className={filter === k ? 'is-on' : ''} onClick={() => setFilter(k)}>{{ all: 'Dhammaan', pending: '⏳ Sugaya', approved: '✅ La oggolaaday', rejected: '❌ La diiday' }[k]} ({counts[k] || 0})</button>)}</div>
+        <button className={`btn btn--ghost btn--sm ${sortNum ? 'is-on' : ''}`} onClick={() => setSortNum(!sortNum)}>🍀 {sortNum ? 'Sorted by number' : 'Sort by lucky number'}</button>
         <input className="ca-search" placeholder="🔍 Raadi magac, email, waddan…" value={q} onChange={(e) => setQ(e.target.value)} />
       </div>
       {shown.length === 0 && <div className="adm-card adm-empty">Qof ma jiro.</div>}

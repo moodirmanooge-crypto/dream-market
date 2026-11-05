@@ -1,4 +1,4 @@
-import { collection, doc, getDoc, getDocs, setDoc, updateDoc } from 'firebase/firestore'
+import { collection, deleteField, doc, getDoc, getDocs, setDoc, updateDoc, writeBatch } from 'firebase/firestore'
 import { db } from '../firebase'
 import { COL, seed } from '../data/seed'
 
@@ -40,4 +40,22 @@ export async function runSiteMigrations() {
   const email = s.contact?.email
   if (!email || email === 'hello@dreammarketpodcast.com') patch.contact = { email: 'dreammarketpodcast@gmail.com' }
   if (Object.keys(patch).length) await setDoc(ref, patch, { merge: true })
+}
+
+// Privacy + completeness fix for participants (runs on every admin login, cheap when nothing to do):
+//  - every non-rejected registration gets a public card (so all joined traders are visible)
+//  - lucky numbers are removed from public cards / number docs (only admin + the owner can see them)
+export async function runParticipantsMigration() {
+  const [regs, pubs, lucky] = await Promise.all([getDocs(collection(db, COL.regs)), getDocs(collection(db, COL.compPublic)), getDocs(collection(db, COL.lucky))])
+  const pubIds = new Set(pubs.docs.map((d) => d.id))
+  const b = writeBatch(db); let n = 0
+  regs.docs.forEach((d) => {
+    const r = d.data()
+    if (r.status === 'rejected' || pubIds.has(d.id) || n > 400) return
+    b.set(doc(db, COL.compPublic, d.id), { compId: r.compId, name: r.fullName || '', country: r.country || '', photo: r.photo || '', uid: r.uid || '', ...(r.luckyNumber ? { hasLucky: true } : {}), createdAt: r.createdAt || new Date() }); n++
+  })
+  pubs.docs.forEach((d) => { if ('luckyNumber' in d.data() && n < 450) { b.update(d.ref, { luckyNumber: deleteField(), hasLucky: true }); n++ } })
+  lucky.docs.forEach((d) => { const x = d.data(); if (('name' in x || 'photo' in x) && n < 480) { b.update(d.ref, { name: deleteField(), photo: deleteField() }); n++ } })
+  if (n) await b.commit()
+  return n
 }

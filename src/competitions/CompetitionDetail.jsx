@@ -9,10 +9,9 @@ import { useTrack } from '../hooks/useTrack'
 import Footer from '../components/Footer'
 import SubHeader from './SubHeader'
 import Countdown from './Countdown'
-import JoinModal from './JoinModal'
+import JoinModal, { useMyReg } from './JoinModal'
 import WinnersCelebration from './WinnersCelebration'
 import ParticipantsWall from './ParticipantsWall'
-import { getMyReg } from './participants'
 import { StatusPill } from './CompCard'
 import { compState, fmtDate, lines, money, pctFmt, rankBoard, topPrizes } from './util'
 
@@ -26,8 +25,8 @@ export default function CompetitionDetail() {
   const c = comps.find((x) => x.id === id)
   const [board, setBoard] = useState([])
   const [join, setJoin] = useState(false) // false | 'form' | 'lucky'
-  const [myReg, setMyReg] = useState(null)
-  useEffect(() => { setMyReg(getMyReg(id)) }, [id, join])
+  const [myReg, setMyReg] = useMyReg(id)
+  useEffect(() => { if (!join) setMyReg((r) => { try { return JSON.parse(localStorage.getItem(`dmp-reg-${id}`) || 'null') || r } catch { return r } }) }, [id, join, setMyReg])
   const [params, setParams] = useSearchParams()
   const [, tick] = useState(0)
   useTrack('competition')
@@ -109,7 +108,7 @@ export default function CompetitionDetail() {
             <div className="cpd-cta">{joinBtn(true)}</div>
           </section>
 
-          <ParticipantsWall comp={c} myRegId={myReg?.regId} />
+          <ParticipantsWall comp={c} myReg={myReg} />
 
           <section id="rules" className="cpd-sec">
             <h2>Rules & Requirements</h2>

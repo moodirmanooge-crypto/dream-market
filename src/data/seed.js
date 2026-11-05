@@ -198,4 +198,6 @@ export const COL = {
   board: 'dreamCompBoard',
   compPublic: 'dreamCompPublic',
   lucky: 'dreamLuckyNumbers',
+  emailLocks: 'dreamCompEmails',
+  nameLocks: 'dreamCompNames',
 }

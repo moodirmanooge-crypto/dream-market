@@ -71,3 +71,9 @@ export const randomLucky = (taken = new Set()) => {
   return n
 }
 export const initials = (n = '') => n.split(' ').map((p) => p[0]).slice(0, 2).join('').toUpperCase()
+
+// ---------- one registration per device / email / name (per competition) ----------
+export const nameKey = (v = '') => v.trim().toLowerCase().normalize('NFKD').replace(/[^\p{L}]+/gu, '')
+export const regIdFor = (compId, uid) => `${compId}_${uid}`
+export const emailLockId = (compId, email) => `${compId}_${email.trim().toLowerCase()}`
+export const nameLockId = (compId, name) => `${compId}_${nameKey(name)}`
